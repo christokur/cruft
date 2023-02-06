@@ -96,6 +96,6 @@ def generate_cookiecutter_context(
     # prompt the user to manually configure at the command line.
     # except when 'no-input' flag is set
     context["cookiecutter"] = prompt_for_config(context, no_input)
-    context["cookiecutter"]["_template"] = template_git_url
+    # context["cookiecutter"]["_template"] = template_git_url
 
     return context
