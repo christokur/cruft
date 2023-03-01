@@ -15,6 +15,7 @@ def link(
     checkout: Optional[str] = None,
     no_input: bool = True,
     config_file: Optional[Path] = None,
+    replay_file: Optional[Path] = None,
     default_config: bool = False,
     extra_context: Optional[Dict[str, Any]] = None,
     directory: Optional[str] = None,
@@ -39,6 +40,7 @@ def link(
             default_config,
             extra_context,
             no_input,
+            replay_file,
         )
         if no_input:
             use_commit = last_commit

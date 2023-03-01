@@ -49,6 +49,16 @@ class InvalidCookiecutterRepository(CruftError):
         )
 
 
+class InvalidCookiecutterReplay(CruftError):
+    """Raised when an invalid cookiecutter replay is provided."""
+
+    def __init__(self, replay_file: str, details: str = ""):
+        self.replay_file = replay_file
+        super().__init__(
+            f"Unable to load the cookiecutter replay '{replay_file}'! {details.strip()}"
+        )
+
+
 class ChangesetUnicodeError(CruftError):
     """Raised when `cruft update` is unable to generate the change"""
 

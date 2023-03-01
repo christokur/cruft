@@ -60,6 +60,9 @@ def create(
     config_file: Optional[Path] = typer.Option(
         None, help="Path to the Cookiecutter user config file", exists=True
     ),
+    replay_file: Optional[Path] = typer.Option(
+        None, help="Path to the Cookiecutter replay file", exists=False
+    ),
     default_config: bool = typer.Option(
         False,
         "--default-config",
@@ -108,6 +111,7 @@ def create(
         template_git_url,
         output_dir=output_dir,
         config_file=config_file,
+        replay_file=replay_file,
         default_config=default_config,
         extra_context=json.loads(extra_context),
         no_input=no_input,
@@ -145,6 +149,9 @@ def link(
     config_file: Optional[Path] = typer.Option(
         None, help="Path to the Cookiecutter user config file", exists=True
     ),
+    replay_file: Optional[Path] = typer.Option(
+        None, help="Path to the Cookiecutter replay file", exists=True
+    ),
     default_config: bool = typer.Option(
         False,
         "--default-config",
@@ -171,6 +178,7 @@ def link(
         project_dir=project_dir,
         checkout=checkout,
         config_file=config_file,
+        replay_file=replay_file,
         default_config=default_config,
         extra_context=json.loads(extra_context),
         no_input=no_input,

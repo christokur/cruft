@@ -5,9 +5,11 @@ from urllib.parse import urlparse
 from cookiecutter.config import get_user_config
 from cookiecutter.generate import generate_context
 from cookiecutter.prompt import prompt_for_config
+from cookiecutter.replay import load as load_replay
+from cookiecutter.replay import dump as save_replay
 from git import GitCommandError, Repo
 
-from cruft.exceptions import InvalidCookiecutterRepository, UnableToFindCookiecutterTemplate
+from cruft.exceptions import InvalidCookiecutterRepository, UnableToFindCookiecutterTemplate, InvalidCookiecutterReplay
 
 CookiecutterContext = Dict[str, Any]
 
@@ -79,6 +81,7 @@ def generate_cookiecutter_context(
     default_config: bool = False,
     extra_context: Optional[Dict[str, Any]] = None,
     no_input: bool = False,
+    replay_file: Optional[Path] = None,
 ) -> CookiecutterContext:
     _validate_cookiecutter(cookiecutter_template_dir)
 
@@ -86,6 +89,25 @@ def generate_cookiecutter_context(
     config_dict = get_user_config(
         config_file=str(config_file) if config_file else None, default_config=default_config
     )
+    replay_dir = None
+    if replay_file:
+        if replay_file.is_absolute() and replay_file.exists():
+            replay_dir = replay_file.parent
+            replay_file = replay_file.name
+        else:
+            replay_dir = Path(config_dict["replay_dir"])
+        if (replay_dir / replay_file).exists():
+            replay_file = replay_file.name
+            try:
+                replay_context = load_replay(replay_dir, replay_file)
+            except (TypeError, ValueError) as error:
+                raise InvalidCookiecutterReplay(
+                    str(replay_file), f"Failed to load the replay file. {error}"
+                ) from error
+            if isinstance(extra_context, dict):
+                extra_context.update(replay_context['cookiecutter'])
+            else:
+                extra_context = replay_context['cookiecutter']
 
     context = generate_context(
         context_file=context_file,
@@ -96,6 +118,14 @@ def generate_cookiecutter_context(
     # prompt the user to manually configure at the command line.
     # except when 'no-input' flag is set
     context["cookiecutter"] = prompt_for_config(context, no_input)
-    # context["cookiecutter"]["_template"] = template_git_url
+    context["cookiecutter"]["_template"] = template_git_url
+
+    if replay_dir and replay_file:
+        try:
+            save_replay(replay_dir, replay_file, context, )
+        except (TypeError, ValueError) as error:
+            raise InvalidCookiecutterReplay(
+                str(replay_file), f"Failed to load the replay file. {error}"
+            ) from error
 
     return context
