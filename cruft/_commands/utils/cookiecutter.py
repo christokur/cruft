@@ -1,3 +1,7 @@
+import re
+
+import os
+
 from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urlparse
@@ -91,23 +95,30 @@ def generate_cookiecutter_context(
     )
     replay_dir = None
     if replay_file:
-        if replay_file.is_absolute() and replay_file.exists():
+        if replay_file.exists():
             replay_dir = replay_file.parent
+            replay_path = replay_file
             replay_file = replay_file.name
         else:
             replay_dir = Path(config_dict["replay_dir"])
-        if (replay_dir / replay_file).exists():
-            replay_file = replay_file.name
+            replay_path = replay_dir / replay_file
+            if replay_path.exists():
+                replay_dir, replay_file = replay_path.parent, replay_path.name
+            else:
+                raise InvalidCookiecutterReplay(str(replay_path), f"No replay file found.")
+        if replay_path.exists():
             try:
                 replay_context = load_replay(replay_dir, replay_file)
             except (TypeError, ValueError) as error:
                 raise InvalidCookiecutterReplay(
-                    str(replay_file), f"Failed to load the replay file. {error}"
+                    str(replay_dir / replay_file), f"Failed to load the replay file. {error}"
                 ) from error
             if isinstance(extra_context, dict):
                 extra_context.update(replay_context['cookiecutter'])
             else:
                 extra_context = replay_context['cookiecutter']
+        else:
+            raise InvalidCookiecutterReplay(str(replay_path), f"No replay file found.")
 
     context = generate_context(
         context_file=context_file,
