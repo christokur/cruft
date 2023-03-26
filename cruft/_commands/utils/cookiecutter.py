@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 from urllib.parse import urlparse
 
 from cookiecutter.config import get_user_config
-from cookiecutter.generate import generate_context
+from cookiecutter.generate import generate_context, apply_overwrites_to_context
 from cookiecutter.prompt import prompt_for_config
 from cookiecutter.replay import load as load_replay
 from cookiecutter.replay import dump as save_replay
@@ -120,16 +120,25 @@ def generate_cookiecutter_context(
         else:
             raise InvalidCookiecutterReplay(str(replay_path), f"No replay file found.")
 
+    # Don't pass entries prefixed by "_" = cookiecutter extensions, not direct user intent
+    jinja2_env_vars = {}
+    user_context = {}
+    for key, value in extra_context.items():
+        if key.startswith("_"):
+            jinja2_env_vars[key] = value
+        else:
+            user_context[key] = value
     context = generate_context(
         context_file=context_file,
         default_context=config_dict["default_context"],
-        extra_context=extra_context,
+        extra_context=user_context,
     )
 
     # prompt the user to manually configure at the command line.
     # except when 'no-input' flag is set
     context["cookiecutter"] = prompt_for_config(context, no_input)
     context["cookiecutter"]["_template"] = template_git_url
+    context["cookiecutter"].update(jinja2_env_vars)
 
     if replay_dir and replay_file:
         try:
