@@ -29,6 +29,8 @@ def diff(
     cruft_file = utils.cruft.get_cruft_file(project_dir)
     cruft_state = json.loads(cruft_file.read_text())
     checkout = checkout or cruft_state.get("commit")
+    if checkout:
+        cruft_state["checkout"] = checkout
 
     has_diff = False
     with AltTemporaryDirectory() as tmpdir_:
@@ -42,9 +44,8 @@ def diff(
         local_template_dir.mkdir(parents=True, exist_ok=True)
 
         # Let's clone the template
-        with utils.cookiecutter.get_cookiecutter_repo(
-            cruft_state["template"], repo_dir, checkout=checkout
-        ) as repo:
+        with utils.cookiecutter.get_cookiecutter_repo(cruft_state, repo_dir) as repo:
+            checkout = cruft_state["checkout"]
             # We generate the template for the revision expected by the project
             utils.generate.cookiecutter_template(
                 output_dir=remote_template_dir,

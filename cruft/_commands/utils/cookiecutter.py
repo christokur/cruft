@@ -45,18 +45,19 @@ def resolve_template_url(url: str) -> str:
         # exist in the file system.
         # In this case we simply return the URL. If the user did
         # pass in a valid file path that does not exist, we do not need to
-        # worry as we will never to be able use it in check/update etc. anyway
+        # worry as we will never to be able to use it in check/update etc. anyway
         if file_path.exists():
             return str(file_path)
     return url
 
 
 def get_cookiecutter_repo(
-    template_git_url: str,
+    cruft_state: dict,
     cookiecutter_template_dir: Path,
-    checkout: Optional[str] = None,
     **clone_kwargs,
 ) -> Repo:
+    template_git_url = cruft_state.get("template", None)
+    checkout = cruft_state.get("checkout", None)
     try:
         repo = Repo.clone_from(template_git_url, cookiecutter_template_dir, **clone_kwargs)
     except GitCommandError as error:
@@ -81,11 +82,13 @@ def get_cookiecutter_repo(
                 if "0.0.0" == vers:
                     ref = "HEAD"
                 else:
-                    ref_l = [ref for ref in refs if vers in ref.name]
+                    ref_l = [ref.name for ref in refs if vers in ref.name]
                     assert ref_l, f"No tag found for version: {vers}"
                     ref = ref_l[0]
         elif BRANCH in checkout:
             ref = checkout.replace(BRANCH, "")
+        checkout = ref
+        cruft_state["checkout"] = checkout
         try:
             repo.git.checkout(ref)
         except GitCommandError as error:

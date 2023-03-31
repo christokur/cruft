@@ -23,11 +23,16 @@ def link(
     """Links an existing project created from a template, to the template it was created from."""
     cruft_file = utils.cruft.get_cruft_file(project_dir, exists=False)
     template_git_url = utils.cookiecutter.resolve_template_url(template_git_url)
+    cruft_state = {
+        "template": template_git_url,
+        "checkout": checkout if checkout else None,
+    }
     with AltTemporaryDirectory() as cookiecutter_template_dir_str:
         cookiecutter_template_dir = Path(cookiecutter_template_dir_str)
         with utils.cookiecutter.get_cookiecutter_repo(
-            template_git_url, cookiecutter_template_dir, checkout
+            cruft_state, cookiecutter_template_dir
         ) as repo:
+            checkout = cruft_state["checkout"]
             last_commit = repo.head.object.hexsha
 
         if directory:

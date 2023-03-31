@@ -45,6 +45,8 @@ def update(
         return False
 
     cruft_state = json.loads(cruft_file.read_text())
+    if checkout:
+        cruft_state["checkout"] = checkout
 
     with AltTemporaryDirectory() as tmpdir_:
         # Initial setup
@@ -54,9 +56,8 @@ def update(
         new_template_dir = tmpdir / "new_template"
         deleted_paths: Set[Path] = set()
         # Clone the template
-        with utils.cookiecutter.get_cookiecutter_repo(
-            cruft_state["template"], repo_dir, checkout
-        ) as repo:
+        with utils.cookiecutter.get_cookiecutter_repo(cruft_state, repo_dir) as repo:
+            checkout = cruft_state["checkout"]
             last_commit = repo.head.object.hexsha
 
             # Bail early if the repo is already up to date and no inputs are asked

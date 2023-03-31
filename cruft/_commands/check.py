@@ -17,14 +17,16 @@ def check(
     used to generate this project."""
     cruft_file = utils.cruft.get_cruft_file(project_dir)
     cruft_state = json.loads(cruft_file.read_text())
+    if checkout:
+        cruft_state["checkout"] = checkout
     with AltTemporaryDirectory() as cookiecutter_template_dir:
         with utils.cookiecutter.get_cookiecutter_repo(
-            cruft_state["template"],
+            cruft_state,
             Path(cookiecutter_template_dir),
-            checkout,
             filter="blob:none",
             no_checkout=True,
         ) as repo:
+            # checkout = cruft_state["checkout"]
             last_commit = repo.head.object.hexsha
 
             if utils.cruft.is_project_updated(repo, cruft_state["commit"], last_commit, strict):

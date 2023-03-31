@@ -27,11 +27,16 @@ def create(
 ) -> Path:
     """Expand a Git based Cookiecutter template into a new project on disk."""
     template_git_url = utils.cookiecutter.resolve_template_url(template_git_url)
+    cruft_state = {
+        "template": template_git_url,
+        "checkout": checkout,
+    }
     with AltTemporaryDirectory() as cookiecutter_template_dir_str:
         cookiecutter_template_dir = Path(cookiecutter_template_dir_str)
         with utils.cookiecutter.get_cookiecutter_repo(
-            template_git_url, cookiecutter_template_dir, checkout
+            cruft_state, cookiecutter_template_dir
         ) as repo:
+            checkout = cruft_state["checkout"]
             last_commit = repo.head.object.hexsha
 
             if directory:
