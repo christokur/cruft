@@ -1,21 +1,29 @@
+from __future__ import annotations
+
 import re
-
-import os
-
 from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import urlparse
 
+import git
+import git.refs
 from cookiecutter.config import get_user_config
-from cookiecutter.generate import generate_context, apply_overwrites_to_context
+from cookiecutter.generate import generate_context
 from cookiecutter.prompt import prompt_for_config
-from cookiecutter.replay import load as load_replay
 from cookiecutter.replay import dump as save_replay
+from cookiecutter.replay import load as load_replay
 from git import GitCommandError, Repo
+from packaging import version
 
-from cruft.exceptions import InvalidCookiecutterRepository, UnableToFindCookiecutterTemplate, InvalidCookiecutterReplay
+from cruft.exceptions import (
+    InvalidCookiecutterReplay,
+    InvalidCookiecutterRepository,
+    UnableToFindCookiecutterTemplate,
+)
 
 CookiecutterContext = Dict[str, Any]
+LATEST = ":latest:"
+BRANCH = "branch:"
 
 
 #################################
@@ -56,8 +64,30 @@ def get_cookiecutter_repo(
             template_git_url, f"Failed to clone the repo. {error.stderr.strip()}"
         )
     if checkout is not None:
+        ref = checkout
+        if checkout in LATEST:
+            refs = [
+                ref for ref in repo.refs if isinstance(ref, git.refs.TagReference)  # type: ignore
+            ]
+            if not refs:
+                ref = "HEAD"
+            else:
+                latest = version.parse("0.0.0")
+                for ref in refs:
+                    ver = version.parse(re.sub(r"[^0-9.]", "", ref.name))
+                    if ver > latest:
+                        latest = ver
+                vers = str(latest)
+                if "0.0.0" == vers:
+                    ref = "HEAD"
+                else:
+                    ref_l = [ref for ref in refs if vers in ref.name]
+                    assert ref_l, f"No tag found for version: {vers}"
+                    ref = ref_l[0]
+        elif BRANCH in checkout:
+            ref = checkout.replace(BRANCH, "")
         try:
-            repo.git.checkout(checkout)
+            repo.git.checkout(ref)
         except GitCommandError as error:
             raise InvalidCookiecutterRepository(
                 template_git_url,
@@ -98,14 +128,14 @@ def generate_cookiecutter_context(
         if replay_file.exists():
             replay_dir = replay_file.parent
             replay_path = replay_file
-            replay_file = replay_file.name
+            replay_file = Path(replay_file.name)
         else:
             replay_dir = Path(config_dict["replay_dir"])
             replay_path = replay_dir / replay_file
             if replay_path.exists():
-                replay_dir, replay_file = replay_path.parent, replay_path.name
+                replay_dir, replay_file = replay_path.parent, Path(replay_path.name)
             else:
-                raise InvalidCookiecutterReplay(str(replay_path), f"No replay file found.")
+                raise InvalidCookiecutterReplay(str(replay_path), "No replay file found.")
         if replay_path.exists():
             try:
                 replay_context = load_replay(replay_dir, replay_file)
@@ -114,20 +144,21 @@ def generate_cookiecutter_context(
                     str(replay_dir / replay_file), f"Failed to load the replay file. {error}"
                 ) from error
             if isinstance(extra_context, dict):
-                extra_context.update(replay_context['cookiecutter'])
+                extra_context.update(replay_context["cookiecutter"])
             else:
-                extra_context = replay_context['cookiecutter']
+                extra_context = replay_context["cookiecutter"]
         else:
-            raise InvalidCookiecutterReplay(str(replay_path), f"No replay file found.")
+            raise InvalidCookiecutterReplay(str(replay_path), "No replay file found.")
 
     # Don't pass entries prefixed by "_" = cookiecutter extensions, not direct user intent
     jinja2_env_vars = {}
     user_context = {}
-    for key, value in extra_context.items():
-        if key.startswith("_"):
-            jinja2_env_vars[key] = value
-        else:
-            user_context[key] = value
+    if extra_context:
+        for key, value in extra_context.items():
+            if key.startswith("_"):
+                jinja2_env_vars[key] = value
+            else:
+                user_context[key] = value
     context = generate_context(
         context_file=context_file,
         default_context=config_dict["default_context"],
@@ -140,9 +171,13 @@ def generate_cookiecutter_context(
     context["cookiecutter"]["_template"] = template_git_url
     context["cookiecutter"].update(jinja2_env_vars)
 
-    if replay_dir and replay_file:
+    if not (replay_dir is None or replay_file is None):
         try:
-            save_replay(replay_dir, replay_file, context, )
+            save_replay(
+                replay_dir,
+                replay_file,
+                context,
+            )
         except (TypeError, ValueError) as error:
             raise InvalidCookiecutterReplay(
                 str(replay_file), f"Failed to load the replay file. {error}"

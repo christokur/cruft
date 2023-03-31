@@ -1,14 +1,14 @@
-import typer
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from cookiecutter.generate import generate_files
+import typer
 from cookiecutter.exceptions import CookiecutterException
+from cookiecutter.generate import generate_files
 
+from ..exceptions import CruftError
 from . import utils
 from .utils import example
 from .utils.iohelper import AltTemporaryDirectory
-from ..exceptions import CruftError
 
 
 @example("https://github.com/timothycrosley/cookiecutter-python/")
@@ -56,7 +56,7 @@ def create(
                     output_dir=str(output_dir),
                 )
             )
-    
+
             cruft_content = {
                 "template": template_git_url,
                 "commit": last_commit,
@@ -64,14 +64,14 @@ def create(
                 "context": context,
                 "directory": directory,
             }
-    
+
             if skip:
                 cruft_content["skip"] = skip
-    
+
             # After generating the project - save the cruft state
             # into the cruft file.
             (project_dir / ".cruft.json").write_text(utils.cruft.json_dumps(cruft_content))
             typer.echo(f"Created project in {project_dir}")
             return project_dir
-        except (CookiecutterException) as exc:
-            raise CruftError(str(exc).replace('Error: ', '')) from exc
+        except CookiecutterException as exc:
+            raise CruftError(str(exc).replace("Error: ", "")) from exc
