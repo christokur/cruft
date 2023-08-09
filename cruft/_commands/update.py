@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, run  # nosec
 from typing import Iterable, Optional, Set
+from typing import Any, Dict, Optional, Set
 
 import click
 import typer
@@ -30,9 +31,31 @@ def update(
     interactive: bool = True,
     override: bool = False,
     dry_run: bool = False,
+    extra_context: Optional[Dict[str, Any]] = None,
+    extra_context_file: Optional[Path] = None,
 ) -> bool:
     """Update specified project's cruft to the latest and greatest release."""
     cruft_file = utils.cruft.get_cruft_file(project_dir)
+
+    if extra_context_file:
+        if extra_context_file.samefile(cruft_file):
+            typer.secho(
+                f"The file path given to --variables-to-update-file cannot be the same as the"
+                f" project's cruft file ({cruft_file}), as the update process needs"
+                f" to know the old/original values of variables as well. Please specify a"
+                f" different path, and the project's cruft file will be updated as"
+                f" part of the process.",
+                fg=typer.colors.RED,
+            )
+            return False
+
+        extra_context_from_cli = extra_context
+        with open(extra_context_file, "r") as extra_context_fp:
+            extra_context = json.load(extra_context_fp) or {}
+        extra_context = extra_context.get("context") or {}
+        extra_context = extra_context.get("cookiecutter") or {}
+        if extra_context_from_cli:
+            extra_context.update(extra_context_from_cli)
 
     # If the project dir is a git repository, we ensure
     # that the user has a clean working directory before proceeding.
@@ -48,7 +71,13 @@ def update(
     if checkout:
         cruft_state["checkout"] = checkout
 
-    with AltTemporaryDirectory() as tmpdir_:
+    directory = cruft_state.get("directory", "")
+    if directory:
+        directory = str(Path("repo") / directory)
+    else:
+        directory = "repo"
+
+    with AltTemporaryDirectory(directory) as tmpdir_:
         # Initial setup
         tmpdir = Path(tmpdir_)
         repo_dir = tmpdir / "repo"
@@ -62,7 +91,7 @@ def update(
 
             # Bail early if the repo is already up to date and no inputs are asked
             if not (
-                cookiecutter_input or refresh_private_variables or force
+                extra_context or cookiecutter_input or refresh_private_variables or force
             ) and utils.cruft.is_project_updated(repo, cruft_state["commit"], last_commit, strict):
                 typer.secho(
                     "Nothing to do, project's cruft is already up to date!", fg=typer.colors.GREEN
@@ -70,7 +99,7 @@ def update(
                 return True
 
             # Generate clean outputs via the cookiecutter
-            # from the current cruft state commit of the cookiectter and the updated
+            # from the current cruft state commit of the cookiecutter and the updated
             # cookiecutter.
             # For the current cruft state, we do not try to update the cookiecutter_input
             # because we want to keep the current context input intact.
@@ -95,6 +124,12 @@ def update(
             # from the cookiecutter template config
             if refresh_private_variables:
                 _clean_cookiecutter_private_variables(cruft_state)
+
+            # Add new input data from command line to cookiecutter context
+            if extra_context:
+                extra = cruft_state["context"]["cookiecutter"]
+                for k, v in extra_context.items():
+                    extra[k] = v
 
             new_context = utils.generate.cookiecutter_template(
                 output_dir=new_template_dir,

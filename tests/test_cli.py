@@ -94,6 +94,25 @@ def test_create_interactive(cruft_runner, tmpdir):
     assert (Path(tmpdir) / "RANDOM_NAME").exists()
 
 
+def test_create_extra_context_file(cruft_runner, tmpdir):
+    extra_context_file = Path(__file__).parent / "testdata" / "unicode-data" / "extra_context.json"
+    result = cruft_runner(
+        [
+            "create",
+            "--output-dir",
+            str(tmpdir),
+            "--extra-context-file",
+            str(extra_context_file),
+            "--directory",
+            "dir",
+            "--no-input",
+            "https://github.com/cruft/cookiecutter-test",
+        ]
+    )
+    assert result.exit_code == 0
+    assert (Path(tmpdir) / "CRUFT-TEST-PROJECT").exists()
+
+
 def test_check(cruft_runner, cookiecutter_dir):
     result = cruft_runner(["check", "--project-dir", cookiecutter_dir.as_posix()])
     assert result.exit_code == 0
@@ -378,21 +397,6 @@ def test_diff_has_diff(args, expected_exit_code, cruft_runner, cookiecutter_dir)
     assert result.stdout != ""
 
 
-def test_diff_checkout(cruft_runner, cookiecutter_dir):
-    result = cruft_runner(
-        [
-            "diff",
-            "--project-dir",
-            cookiecutter_dir.as_posix(),
-            "--checkout",
-            "updated",
-            "--exit-code",
-        ]
-    )
-    assert result.exit_code == 1
-    assert result.stdout != ""
-
-
 @pytest.mark.parametrize("args,expected_exit_code", [([], 0), (["--exit-code"], 0), (["-e"], 0)])
 def test_diff_no_diff(args, expected_exit_code, cruft_runner, cookiecutter_dir):
     result = cruft_runner(["diff", "--project-dir", cookiecutter_dir.as_posix()] + args)
@@ -446,6 +450,226 @@ def test_update_refresh_private_variables_from_template(
     assert "+Private variable: 2.0" in git_diff_captured.out
     assert "cruft has been updated" in result.stdout
     assert result.exit_code == 0
+
+
+def make_cruft_file_content(context):
+    return {
+        "template": "https://github.com/gmsantos/cookiecutter-test",
+        "commit": "ab2e492522eddb65c44c2848d6de074ba977b1ac",
+        "checkout": "input",
+        "context": {
+            "cookiecutter": context,
+        },
+        "directory": "dir",
+    }
+
+
+@pytest.mark.parametrize(
+    "template_version",
+    [
+        pytest.param("input", id="version:initial"),
+        pytest.param("input-updated", id="version:updated"),
+    ],
+)
+@pytest.mark.parametrize(
+    "variables_to_update_cli",
+    [
+        pytest.param((None, None, False), id="cli:none"),
+        pytest.param(("{}", None, False), id="cli:empty"),
+        pytest.param(('{"input":"new-cli-value"}', "new-cli-value", True), id="cli:single1"),
+        pytest.param(('{"input":"other-cli-value"}', "other-cli-value", True), id="cli:single2"),
+        pytest.param(('{"not-an-input":"new-cli-value"}', None, True), id="cli:unsused-var"),
+        pytest.param(
+            ('{"not-an-input":"not-used","input":"new-cli-value"}', "new-cli-value", True),
+            id="cli:multiple",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "variables_to_update_file",
+    [
+        pytest.param((None, None, False), id="file:none"),
+        pytest.param(({}, None, False), id="file:empty-level0"),
+        pytest.param(
+            (
+                {
+                    "template": "https://github.com/gmsantos/cookiecutter-test",
+                    "commit": "ab2e492522eddb65c44c2848d6de074ba977b1ac",
+                    "checkout": "input",
+                    "directory": "dir",
+                },
+                None,
+                False,
+            ),
+            id="file:empty-level1",
+        ),
+        pytest.param((make_cruft_file_content({}), None, False), id="file:empty-level2"),
+        pytest.param(
+            (
+                make_cruft_file_content({"input": "new-file-value"}),
+                "new-file-value",
+                True,
+            ),
+            id="file:single1",
+        ),
+        pytest.param(
+            (
+                make_cruft_file_content({"input": "other-file-value"}),
+                "other-file-value",
+                True,
+            ),
+            id="file:single2",
+        ),
+        pytest.param(
+            (
+                make_cruft_file_content({"not-used": "new-file-value"}),
+                None,
+                True,
+            ),
+            id="file:unused-var",
+        ),
+        pytest.param(
+            (
+                make_cruft_file_content(
+                    {
+                        "input": "other-file-value",
+                        "ignored": "not-used",
+                    }
+                ),
+                "other-file-value",
+                True,
+            ),
+            id="file:single2",
+        ),
+    ],
+)
+def test_update_changed_variables(
+    template_version,
+    variables_to_update_cli,
+    variables_to_update_file,
+    cruft_runner,
+    cookiecutter_dir_input,
+    capfd,
+    tmp_path,
+):
+    vtu_cli_input, vtu_cli_expected, vtu_cli_updates = variables_to_update_cli
+    vtu_file_input, vtu_file_expected, vtu_file_updates = variables_to_update_file
+
+    expecting_updates = vtu_cli_updates or vtu_file_updates
+
+    cmd_args = [
+        "update",
+        "--project-dir",
+        cookiecutter_dir_input.as_posix(),
+        "-c",
+        template_version,
+    ]
+
+    if vtu_cli_input:
+        cmd_args.append(f"--variables-to-update={vtu_cli_input}")
+
+    if vtu_file_input:
+        variables_to_update_file = tmp_path / "new-cruft-file.json"
+        with open(variables_to_update_file, "w", encoding="utf-8") as fd:
+            json.dump(vtu_file_input, fd)
+        cmd_args.append(f"--variables-to-update-file={variables_to_update_file}")
+
+    result = cruft_runner(cmd_args, input="v\ny\n")
+
+    git_diff_captured = capfd.readouterr()
+
+    print()
+    print("========== STDERR ==========")
+    print(git_diff_captured.err)
+    print("========== STDOUT ==========")
+    print(git_diff_captured.out)
+    print(result.stdout)
+    print("============================")
+
+    expected_input_value = vtu_cli_expected or vtu_file_expected  # CLI takes precedence
+
+    # validate input value used in project
+    if expected_input_value:
+        assert f"+Input from cookiecutter: {expected_input_value}" in git_diff_captured.out
+        assert "-Input from cookiecutter: some-input" in git_diff_captured.out
+    else:
+        assert "-Input from cookiecutter:" not in git_diff_captured.out
+        assert "+Input from cookiecutter:" not in git_diff_captured.out
+
+    # validate template versions
+    if template_version == "input-updated":
+        expecting_updates = True
+        assert "-Initial" in git_diff_captured.out
+        assert "+Updated" in git_diff_captured.out
+
+    # validate overall result
+    if expecting_updates:
+        assert "cruft has been updated" in result.stdout
+    else:
+        assert "cruft has been updated" not in result.stdout
+        assert "already up to date" in result.stdout
+    assert result.exit_code == 0
+
+
+def test_update_changed_variables_wrong_file(
+    cruft_runner,
+    cookiecutter_dir_input,
+    capfd,
+):
+    result = cruft_runner(
+        [
+            "update",
+            "--project-dir",
+            cookiecutter_dir_input.as_posix(),
+            "-c",
+            "input",
+            f"--variables-to-update-file={cookiecutter_dir_input.as_posix()}/.cruft.json",
+        ],
+        input="v\ny\n",
+    )
+
+    git_diff_captured = capfd.readouterr()
+
+    print()
+    print("========== STDERR ==========")
+    print(git_diff_captured.err)
+    print("========== STDOUT ==========")
+    print(git_diff_captured.out)
+    print(result.stdout)
+    print("============================")
+
+    assert "cannot be the same as the project's cruft file" in result.stdout
+    assert result.exit_code != 0
+
+
+@pytest.mark.parametrize("args,expected_exit_code", [([], 0), (["--exit-code"], 1), (["-e"], 1)])
+def test_diff_has_diff(args, expected_exit_code, cruft_runner, cookiecutter_dir):
+    (cookiecutter_dir / "README.md").write_text("changed content\n")
+    result = cruft_runner(["diff", "--project-dir", cookiecutter_dir.as_posix()] + args)
+    assert result.exit_code == expected_exit_code
+    assert result.stdout != ""
+
+
+def test_diff_checkout(cruft_runner, cookiecutter_dir):
+    result = cruft_runner(
+        [
+            "diff",
+            "--project-dir",
+            cookiecutter_dir.as_posix(),
+            "--checkout",
+            "updated",
+            "--exit-code",
+        ]
+    )
+    assert result.exit_code == 1
+    assert result.stdout != ""
+
+
+@pytest.mark.parametrize("args,expected_exit_code", [([], 0), (["--exit-code"], 0), (["-e"], 0)])
+def test_diff_no_diff(args, expected_exit_code, cruft_runner, cookiecutter_dir):
+    result = cruft_runner(["diff", "--project-dir", cookiecutter_dir.as_posix()] + args)
+    assert result.exit_code == expected_exit_code
+    assert result.stdout == ""
 
 
 @pytest.mark.parametrize("args, expected_exit_code", [([], 0)])
@@ -511,3 +735,37 @@ def test_project_diff_repo(args, expected_exit_code, expect_stdout, cruft_runner
     result = cruft_runner(["diff", "--project-dir", str(cookiecutter_dir)] + args)
     assert result.exit_code == expected_exit_code
     assert (result.stdout != "") == expect_stdout
+
+def test_local_extension(cruft_runner, tmpdir):
+    result = cruft_runner(
+        [
+            "create",
+            "--output-dir",
+            str(tmpdir),
+            "https://github.com/cruft/cookiecutter-test",
+            "--directory",
+            "dir",
+            "--checkout",
+            "extensions",
+            "-y",
+        ]
+    )
+    assert result.exit_code == 0
+    assert result.stdout == ""
+
+
+def test_local_extension_update(cruft_runner, tmpdir):
+    test_local_extension(cruft_runner, tmpdir)
+    result = cruft_runner(
+        [
+            "update",
+            "--project-dir",
+            str(tmpdir / "test"),
+            "--checkout",
+            "extensions-update",
+            "--skip-apply-ask",
+        ]
+    )
+    assert result.exit_code == 0
+    with open(tmpdir / "test" / "README.md") as f:
+        assert "Updated11" in f.read()

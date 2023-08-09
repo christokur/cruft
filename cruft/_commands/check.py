@@ -19,7 +19,7 @@ def check(
     cruft_state = json.loads(cruft_file.read_text())
     if checkout:
         cruft_state["checkout"] = checkout
-    with AltTemporaryDirectory() as cookiecutter_template_dir:
+    with AltTemporaryDirectory(cruft_state.get("directory")) as cookiecutter_template_dir:
         with utils.cookiecutter.get_cookiecutter_repo(
             cruft_state,
             Path(cookiecutter_template_dir),

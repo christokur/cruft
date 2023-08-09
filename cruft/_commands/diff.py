@@ -33,7 +33,7 @@ def diff(
         cruft_state["checkout"] = checkout
 
     has_diff = False
-    with AltTemporaryDirectory() as tmpdir_:
+    with AltTemporaryDirectory(cruft_state.get("directory")) as tmpdir_:
         tmpdir = Path(tmpdir_)
         repo_dir = tmpdir / "repo"
         remote_template_dir = tmpdir / "remote"

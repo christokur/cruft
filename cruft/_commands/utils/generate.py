@@ -79,7 +79,7 @@ def _generate_output(
     # Therefor we have to move the directory content to the expected output_dir.
     # See https://github.com/cookiecutter/cookiecutter/pull/907
     output_dir.mkdir(parents=True, exist_ok=True)
-    with AltTemporaryDirectory() as tmpdir:
+    with AltTemporaryDirectory(cruft_state.get("directory")) as tmpdir:
         # Kindly ask cookiecutter to generate the template
         template_dir = generate_files(
             repo_dir=inner_dir, context=new_context, overwrite_if_exists=True, output_dir=tmpdir

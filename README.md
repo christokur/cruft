@@ -34,13 +34,13 @@ Many project template utilities exist that automate the copying and pasting of c
 
 cruft is different. It automates the creation of new projects like the others, but then it also helps you to manage the boilerplate through the life of the project. cruft makes sure your code stays in-sync with the template it came from for you.
 
-## Key Features:
+## Key Features
 
 * **Cookiecutter Compatible**: cruft utilizes [Cookiecutter](https://github.com/cookiecutter/cookiecutter) as its template expansion engine. Meaning it retains full compatibility with all existing [Cookiecutter](https://github.com/cookiecutter/cookiecutter) templates.
 * **Template Validation**: cruft can quickly validate whether or not a project is using the latest version of a template using `cruft check`. This check can easily be added to CI pipelines to ensure your projects stay in-sync.
 * **Automatic Template Updates**: cruft automates the process of updating code to match the latest version of a template, making it easy to utilize template improvements across many projects.
 
-## Installation:
+## Installation
 
 To get started - install `cruft` using a Python package manager:
 
@@ -55,7 +55,7 @@ OR
 `pipenv install cruft`
 
 
-## Creating a New Project:
+## Creating a New Project
 
 To create a new project using cruft run `cruft create PROJECT_URL` from the command line.
 
@@ -65,7 +65,7 @@ For example:
 
 cruft will then ask you any necessary questions to create your new project. It will use your answers to expand the provided template, and then return the directory it placed the expanded project.
 Behind the scenes, cruft uses [Cookiecutter](https://github.com/cookiecutter/cookiecutter) to do the project expansion. The only difference in the resulting output is a `.cruft.json` file that
-contains the git hash of the template used as well as the parameters specified.
+contains the git hash of the template used as well as the template variables specified.
 
 ## Updating a Project
 
@@ -100,7 +100,50 @@ and update the `.cruft.json` file for you.
             ...
         }
 
+## Updating Values of Template Variables
 
+`cruft` can also be used to update a project to use new values of template variables; avoiding the need to regenerate
+the project from sratch using `cookiecutter`.
+
+For example, imagine a project that was initially generated some while ago, and then later on, you want to change the
+values of some of the template variables, e.g. to change `use_some_feature` to `"yes"` or to change `project_name` to
+`"new-project-name"`.
+
+There are 2 ways this can be done, as described below.
+
+### Update Variables via the Command Line
+
+You can perform the update directly via the command line if you have only a handful of simple variables.
+
+This will change `use_some_feature` to `"yes"` while leaving all other variables unchanged:
+```bash
+cruft update --variables-to-update '{ "use_some_feature" : "yes" }'
+```
+
+This will change both `use_some_feature` to `"yes"` and `project_name` to `"new-project-name"` (and still leaving all
+other variables unchanged):
+```bash
+cruft update --variables-to-update '{ "use_some_feature" : "yes", "project_name" : "new-project-name" }'
+```
+
+The provided argument must be a valid JSON string (i.e. using double quotes, no trailing comma etc.).
+
+### Update Variables via a Cruft File
+
+If you prefer to use and editor or you have many or complex variables, you can also perform the changes via providing an
+updated .cruft.json.
+
+```bash
+# copy the existing cruft file to a temporary location (outside of your repo)
+cp .cruft.json ~/tmp/new-cruft.json
+
+# edit the file using your faviourite editor
+edit ~/tmp/new-cruft.json
+
+# perform the update
+# (this will also update your original .cruft.json automatically)
+cruft update --variables-to-update-file ~/tmp/new-cruft.json
+```
 
 ## Checking a Project
 
@@ -123,6 +166,89 @@ You can then specify the last commit of the template the project has been update
 With time, your boilerplate may end up being very different from the actual cookiecutter template. Cruft allows you to quickly see what changed in your local project compared to the template. It is as easy as running `cruft diff`. If any local file differs from the template, the diff will appear in your terminal in a similar fashion to `git diff`.
 
 The `cruft diff` command optionally accepts an `--exit-code` flag that will make cruft exit with a non-0 code should any diff is found. You can combine this flag with the `skip` section of your `.cruft.json` to make stricter CI checks that ensures any improvement to the template is always submitted upstream.
+
+## Automating updates with GitHub Actions
+
+If you have many repositories to manage, you can automate the change detection process with GitHub Actions. This example runs every Monday at 2am UTC and creates a new pull request if there are changes detected which a maintainer can accept or reject. It creates two PRs - one to pull in the new files to the repository and one to update the `.cruft.json` file only, which has the effect of rejecting the change from the upstream repository.
+
+> Since Jan 2022, registries/organisations must explicitly grant the authority to create a pull request. This can be enabled on a per-organisation level, or a per-registry level for personal projects. See [GitHub](https://github.blog/changelog/2022-05-03-github-actions-prevent-github-actions-from-creating-and-approving-pull-requests/) for more details.
+
+```yaml
+# /.github/workflows/cruft-update.yml
+name: Update repository with Cruft
+permissions:
+  contents: write
+  pull-requests: write
+on:
+  schedule:
+    - cron: "0 2 * * 1" # Every Monday at 2am
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - add-paths: .
+            body: Use this to merge the changes to this repository.
+            branch: cruft/update
+            commit-message: "chore: accept new Cruft update"
+            title: New updates detected with Cruft
+          - add-paths: .cruft.json
+            body: Use this to reject the changes in this repository.
+            branch: cruft/reject
+            commit-message: "chore: reject new Cruft update"
+            title: Reject new updates detected with Cruft
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Cruft
+        run: pip3 install cruft
+
+      - name: Check if update is available
+        continue-on-error: false
+        id: check
+        run: |
+          CHANGES=0
+          if [ -f .cruft.json ]; then
+            if ! cruft check; then
+              CHANGES=1
+            fi
+          else
+            echo "No .cruft.json file"
+          fi
+
+          echo "has_changes=$CHANGES" >> "$GITHUB_OUTPUT"
+
+      - name: Run update if available
+        if: steps.check.outputs.has_changes == '1'
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "GitHub"
+
+          cruft update --skip-apply-ask --refresh-private-variables
+          git restore --staged .
+
+      - name: Create pull request
+        if: steps.check.outputs.has_changes == '1'
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: ${{ matrix.add-paths }}
+          commit-message: ${{ matrix.commit-message }}
+          branch: ${{ matrix.branch }}
+          delete-branch: true
+          branch-suffix: timestamp
+          title: ${{ matrix.title }}
+          body: |
+            This is an autogenerated PR. ${{ matrix.body }}
+
+            [Cruft](https://cruft.github.io/cruft/) has detected updates from the Cookiecutter repository.
+```
 
 ## Why Create cruft?
 

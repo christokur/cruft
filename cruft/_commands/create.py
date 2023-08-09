@@ -19,6 +19,7 @@ def create(
     replay_file: Optional[Path] = None,
     default_config: bool = False,
     extra_context: Optional[Dict[str, Any]] = None,
+    extra_context_file: Optional[Path] = None,
     no_input: bool = True,
     directory: Optional[str] = None,
     checkout: Optional[str] = None,
@@ -31,7 +32,7 @@ def create(
         "template": template_git_url,
         "checkout": checkout,
     }
-    with AltTemporaryDirectory() as cookiecutter_template_dir_str:
+    with AltTemporaryDirectory(directory) as cookiecutter_template_dir_str:
         cookiecutter_template_dir = Path(cookiecutter_template_dir_str)
         with utils.cookiecutter.get_cookiecutter_repo(
             cruft_state, cookiecutter_template_dir
@@ -42,6 +43,8 @@ def create(
             if directory:
                 cookiecutter_template_dir = cookiecutter_template_dir / directory
 
+            if extra_context_file:
+                extra_context = utils.cookiecutter.get_extra_context_from_file(extra_context_file)
             context = utils.cookiecutter.generate_cookiecutter_context(
                 template_git_url,
                 cookiecutter_template_dir,

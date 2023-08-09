@@ -27,7 +27,7 @@ def link(
         "template": template_git_url,
         "checkout": checkout if checkout else None,
     }
-    with AltTemporaryDirectory() as cookiecutter_template_dir_str:
+    with AltTemporaryDirectory(directory) as cookiecutter_template_dir_str:
         cookiecutter_template_dir = Path(cookiecutter_template_dir_str)
         with utils.cookiecutter.get_cookiecutter_repo(
             cruft_state, cookiecutter_template_dir

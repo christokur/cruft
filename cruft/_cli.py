@@ -75,11 +75,18 @@ def create(
         help="A JSON string describing any extra context to pass to cookiecutter.",
         show_default=False,
     ),
+    extra_context_file: Optional[Path] = typer.Option(
+        None,
+        "--extra-context-file",
+        "-E",
+        help="Path to a JSON file describing any extra context to pass to cookiecutter.",
+        exists=True,
+    ),
     no_input: bool = typer.Option(
         False,
         "--no-input",
         "-y",
-        help="Do not prompt for parameters and only use cookiecutter.json file content",
+        help="Do not prompt for template variables and only use cookiecutter.json file content",
         show_default=False,
     ),
     directory: Optional[str] = typer.Option(
@@ -114,6 +121,7 @@ def create(
         replay_file=replay_file,
         default_config=default_config,
         extra_context=json.loads(extra_context),
+        extra_context_file=extra_context_file,
         no_input=no_input,
         directory=directory,
         checkout=checkout,
@@ -198,7 +206,7 @@ def update(
         False,
         "--cookiecutter-input",
         "-i",
-        help="Prompt for cookiecutter parameters for the latest template version",
+        help="Prompt for cookiecutter template variables for the latest template version",
         show_default=False,
     ),
     refresh_private_variables: bool = typer.Option(
@@ -300,6 +308,34 @@ def update(
         "-n",
         help=("See what will be updated with making any changes. "),
     ),
+    extra_context: str = typer.Option(
+        "{}",
+        "--variables-to-update",
+        "--extra-context",
+        help=(
+            "Cookiecutter template variables to update in the format of a JSON string,"
+            ' e.g. --variables-to-update \'{ "project" : "new-name" }\'.'
+            " Using this option will update the project (including `.cruft.json`)"
+            " to use the new values of any variables specified."
+        ),
+        show_default=False,
+    ),
+    extra_context_file: Path = typer.Option(
+        None,
+        "--variables-to-update-file",
+        help=(
+            "Cookiecutter template variables to update in the format of a new cruft file"
+            " (i.e. similar format as `.cruft.json`)."
+            " Using this option will parse the file as a JSON string and read"
+            " `context.cookiecutter` for any new values of variables, then use those to update"
+            " the project. As part of this process `.cruft.json` will be updated as well."
+        ),
+        show_default=False,
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        writable=False,
+        readable=True,
 ) -> None:
     if not _commands.update(
         project_dir=project_dir,
@@ -317,12 +353,14 @@ def update(
         interactive=not batch,
         override=override,
         dry_run=dry_run,
+        extra_context=json.loads(extra_context),
+        extra_context_file=extra_context_file,
     ):
         raise typer.Exit(1)
 
 
 @app.command(
-    short_help="Show the diff between the project and the current cruft template.",
+    short_help="Show the diff between the project and the current cruft template",
     help=_get_help_string(_commands.diff),
 )
 def diff(
