@@ -1,5 +1,5 @@
 {
-  "template": "https://github.com/timothycrosley/cookiecutter-python",
+  "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
   "commit": "71391fd9999067ef4b38aa05e7116087fac431f8",
   "context": {
     "cookiecutter": {
