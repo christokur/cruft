@@ -1,6 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "71391fd9999067ef4b38aa05e7116087fac431f8",
+  "commit": "71391fd9999067ef4b38aa05e7116087fac431f",
+  "checkout": "v0.16.10",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -149,6 +150,5 @@
       "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git"
     }
   },
-  "directory": "",
-  "checkout": null
+  "directory": ""
 }
