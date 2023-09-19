@@ -1,6 +1,6 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "71391fd9999067ef4b38aa05e7116087fac431f",
+  "commit": "bc95c5bafa7e60464e2552a188f031373b30a53f",
   "checkout": "v0.16.10",
   "context": {
     "cookiecutter": {
