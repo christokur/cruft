@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "92523fc678ff277f3c7212a951184482bafbbe43",
-  "checkout": "v0.16.13",
+  "commit": "9263b80db223328a2880d7b9e1bd04dba7646cab",
+  "checkout": "v0.16.10",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -32,7 +32,7 @@
       "python_ci_build_version": "3.9",
       "python_requires": ">=3.7",
       "python_toolbag_version": "~0.18.5",
-      "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml",
+      "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml,.gitignore",
       "src_path_prefix": "cruft",
       "site_name": "Cookiecutter",
       "site_description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
@@ -48,7 +48,6 @@
       "black_line_length": "100",
       "black_skip_string_normalization": "true",
       "black_target_version": "'py39'",
-      "isort_profile": "hug",
       "enable_prospector": "False",
       "prospector_ignore_paths": "debug,environment/,bin/,.pytest_cache/,purgatory/",
       "pre_commit_check_yaml_excludes": "cookiecutter/.*",
@@ -74,7 +73,6 @@
         "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
       ],
       "build_system": {},
-      "tox_legacy_ini": {},
       "poetry_dependencies": {
         "cookiecutter": "~2.1.1post3",
         "gitpython": ">=3.0",
@@ -126,10 +124,6 @@
       "poetry_docs_dependencies": {
         "pymdown-extensions": ">=10.0"
       },
-      "poetry_extras": {
-        "pyproject": "['toml']",
-        "examples": "['examples']"
-      },
       "poetry_packages": {
         "1": {
           "include": "cruft"
@@ -141,12 +135,6 @@
       },
       "poetry_urls": {},
       "poe_tasks": {},
-      "portray_mkdocs_theme": {
-        "favicon": "\"art/logo.png\"",
-        "logo": "\"art/logo.png\"",
-        "name": "\"material\"",
-        "palette": "{primary = \"orange\", accent = \"cyan\"}"
-      },
       "pytest_ini_options": {},
       "tools": {},
       "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git"

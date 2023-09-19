@@ -1,31 +1,76 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = [
+  "poetry-core>=1",
+  "setuptools>=42",
+]
+
 [tool.poetry]
 name = "cruft"
-version = "0.0.0"
+version = "2.12.0post3"
 description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
-authors = ["Timothy Crosley <timothy.crosley@gmail.com>", "Sambhav Kothari <sambhavs.email@gmail.com>"]
+authors = [ "Timothy Crosley <timothy.crosley@gmail.com>" ]
 license = "MIT"
 readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+keywords = [ "cookiecutter","Python","projects","project templates","Jinja2","skeleton","scaffolding","project directory","package","packaging",]
+packages = [
+    { include = "cruft" },
+]
+
+[tool.poetry.scripts]
+cruft = "cruft._cli:app"
+
+[tool.poetry.urls]
+Homepage = "https://github.com/cookiecutter/cookiecutter"
+Documentation = "https://cruft.docs.infra-area2.com/"
+Changelog = "https://github.com/cookiecutter/cookiecutter/blob/main/CHANGELOG.md"
+
+[[tool.poetry.source]]
+name = "codeartifact"
+url = "https://artifacts-433714148419.d.codeartifact.us-east-2.amazonaws.com/pypi/pypi/simple/"
+priority = "default"
+
+[tool.poetry.build]
+generate-setup-file = false
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-#cookiecutter = ">=1.7"
-cookiecutter = { git = 'https://github.com/christokur/cookiecutter.git', tag = '2.1.1.post1' }
+python = ">=3.9.16,<3.11.0"
+cookiecutter = "~2.1.1post3"
 gitpython = ">=3.0"
 toml = { version = ">=0.10", optional = true, python = "<3.11" }
 typer = ">=0.4.0"
 click = ">= 7.1.2"
-#examples = {version = ">=1.0.2", optional = true}
 importlib-metadata = {version = ">=2.0.0,<5.0.0", python = "<3.8"}
 packaging = ">=21.3"
 
-[tool.poetry.extras]
-pyproject = ["toml"]
-examples = ["examples"]
-
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+invoke = "1.7.3"
+pip = "~23.2.1"
+poetry = "~1.5.1"
+poethepoet = "~0.21.1"
+python-toolbag = "~0.18.5"
 bandit = ">=1.6"
 black = ">=22.12.0"
-examples = { version = ">=1.0.2", python = ">=3.7.0,<4.0"}
+examples = { version = '>=1.0.2', python = '>=3.7.0,<4.0'}
 safety = ">=1.8"
 isort = ">=5.11.0"
 flake8 = "<5.0.0,>=4.0.0"
@@ -40,27 +85,327 @@ pytest-repeat = ">=0.9.1"
 pytest-xdist = ">=2.5.0"
 pytest-mock = ">=3.3.1"
 pep8-naming = ">=0.8.2"
-portray = { version = ">=1.7.0", python = ">=3.7.0,<4.0"}
+portray = { version = '>=1.7.0', python = '>=3.7.0,<4.0'}
 vulture = ">=1.0"
 
-[tool.poetry.scripts]
-cruft = "cruft._cli:app"
+[tool.poetry.group.test]
+optional = true
 
-[tool.portray.mkdocs.theme]
-favicon = "art/logo.png"
-logo = "art/logo.png"
-name = "material"
-palette = {primary = "orange", accent = "cyan"}
+[tool.poetry.group.test.dependencies]
+coverage = { version = "~6.5.0", extras = ["toml"] }
+pytest = "~7.2.0"
+pytest-cov = "~4.0.0"
+pytest-doctestplus = "~0.12.1"
+#pytest-html = "^3.2.0"
 
-[tool.cruft]
-skip = ["cruft/__init__.py", "tests", "poetry.toml"]
+[tool.poetry.group.local-dev]
+optional = true
 
-[build-system]
-requires = ["poetry-core>=1.0.8"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.group.local-dev.dependencies]
+bump2version = "~1.0.2-beta4"
+commitizen = { version = '~2.42.1' }
+gitlint = { version = '~0.19.1' }
+gitown = { git = 'https://github.com/christokur/gitown.git', tag = 'v0.2.6' }
+poetry-plugin-bump2version = { version = '>=0.11.1' }
+pre-commit = { version = '~2.21.0' }
+prompt-toolkit = "~3.0.37"
+pyproject-fmt = { version = '~0.13.0' }
+ruff = ">=0.0.280"
+semver = ">=3.0.0,<4.0.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+#mkdocs = "~1.4.2"
+#portray = "~1.8.0"
+pdocs = { git = "https://github.com/christokur/pdocs.git", branch = "master" }
+portray = { git = "https://github.com/christokur/portray.git", branch = "main" }
+mkdocs-material = { version = ">=8.5.0,<9.0.0" }
+mdx-include = { version = ">=1.4.1,<2.0.0" }
+mkdocs-markdownextradata-plugin = { version = ">=0.1.7,<0.3.0" }
+mkdocs-simple-hooks = { version = "~0.1.5" }
+pydocstyle = { version = "~6.1.1", extras = ["toml"] }
+pymdown-extensions = ">=10.0"
+# end poetry
 
 [tool.black]
 line-length = 100
+target-version = ['py39']
+exclude = '/(tests/hooks-abort-render/hooks|docs\/HelloCookieCutter1)/'
+# 'force-exclude' excludes files or directories in addition to the defaults
+force-exclude = '(^/.github/*, ^/.vscode/*, .*\.tf)'
+# extend-exclude: keep excluding files from .gitignore in addition to the ones specified
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  ^/\{\{cookiecutter.project_name\}\}/.*
+  | .*_pb2.py  # exclude autogenerated Protocol Buffer files anywhere in the project
+)
+'''
+skip-string-normalization = true
+
+[tool.ruff]
+builtins = ["_"]
+cache-dir = "~/.cache/ruff"
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".idea",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+# In addition to the standard set of exclusions, omit all tests, plus a specific file.
+extend-exclude = ["debug"]
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "ANN", "ARG", "B", "BLE", "C", "COM", "D", "DTZ", "E", "EM", "ERA", "EXE", "F", "FBT", "G", "I", "ICN", "INP", "ISC", "N", "PD", "PGH", "PIE", "PL", "PT", "PTH", "Q", "RET", "RUF", "S", "SIM", "T", "TCH", "TID", "TRY", "UP", "W", "YTT"]
+# Group violations by containing file.
+format = "pylint"
+ignore = [ "ANN002", "ANN003", "ANN101", "D211","D213", "S101", "T20", "EM101", "EM102", "ERA001", "D417", "BLE001", "RET504" ]
+# Same as Black.
+line-length = 120
+per-file-ignores = {}
+# By default, always enumerate fixed violations.
+show-fixes = true
+# By default, always show source code snippets.
+show-source = false
+# Allow imports relative to the "src" and "test" directories.
+src = ["cruft", "tests", ]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+# "FBT", "TRY",
+select = ["A", "ANN", "ARG", "B", "BLE", "C", "COM", "D", "DTZ", "E", "EM", "ERA", "EXE", "F", "G", "I", "ICN", "INP", "ISC", "N", "PD", "PGH", "PIE", "PL", "PT", "PTH", "Q", "RET", "RUF", "S", "SIM", "T", "TCH", "TID", "UP", "W", "YTT"]
+unfixable = []
+task-tags = ["TODO", "FIXME"]
+target-version = "py39"
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+[tool.ruff.pylint]
+max-args = 10
 
 [tool.isort]
-profile = "hug"
+profile = "black"
+skip_gitignore = true
+src_paths = [ "cruft", "tests",  ]
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = "E203"
+
+[tool.pytest.ini_options]
+testpaths = [ "cruft", "tests",  ]
+addopts = ["--doctest-modules"]
+
+[tool.coverage.run]
+command_line = "-m pytest --doctest-modules"
+source = [ "cruft", "tests",]
+parallel = true
+branch = true # measure branch coverage in addition to statement coverage
+
+[tool.coverage.report]
+fail_under = 5
+
+[tool.coverage.paths]
+source = [
+    "cruftcruft",
+    "**/site-packages/cruft",
+]
+
+[tool.poetry_bump2version.options]
+list = true
+allow_dirty = true
+tag = true
+commit = true
+verbose = 1
+
+[tool.pydocstyle]
+convention = "google"
+add_select = "D401,D404"
+
+[tool.poe.env]
+PYTHONWARNINGS = "ignore::Warning:setuptools.command.install"
+
+[tool.poe.tasks]
+pyproject-fmt = { shell = "pyproject-fmt pyproject.toml" }
+check-lock = { shell = "poetry lock --check | grep -v 'not consistent'", help = "poetry lock workaround for https://github.com/nat-n/poethepoet/issues/91" }
+set-lock = { shell = "poetry lock --no-update", help = "Locks the project dependencies in poetry.lock" }
+pc-install = { shell = "pre-commit install; gitlint install-hook", help = "Set up commit-msg and pre-commit hooks" }
+pc-autoupdate = { shell = "pre-commit autoupdate", help = "Auto update pre-commit hooks" }
+pc-reinstall = { shell = "pre-commit uninstall; gitlint uninstall-hook; pre-commit install; gitlint install-hook", help = "Reset commit-msg and pre-commit hooks" }
+hooks = { shell = "git add -A; pre-commit run", help = "Run pre-commit hooks" }
+isort = { shell = "[ -z 'crufttests' ] || { export PYTHONWARNINGS='ignore::Warning:setuptools.command.install'; isort cruft tests; }", help = "isort imports in cruft and tests" }
+black = { shell = "[ -z 'crufttests' ] || { black cruft tests; }", help = "black formatting in cruft and tests" }
+tests = { shell = "[ -z 'crufttests' ] || { poetry run pytest -s --doctest-modules cruft tests; }", help = "pytest's" }
+pros = { shell = "prospector --profile prospector.yaml", help = "Prospector" }
+b2v = { cmd = "bump2version patch --new-version '${version}' --allow-dirty --commit", args = [{ name = "version", positional = true, multiple = false }], help = "Prospector" }
+gcl = { shell = "cz changelog --incremental || { echo 'With incremental changelog we are ok when there is nothing new to add ...'; true; }; python scripts/normalize_changelog.py", help = "Git Changelog" }
+gl = { shell = "gitlint", help = "Gitlint last commit" }
+gitown = { shell = "gitown --ownership_threshold=1 --codeowners_filename=CODEOWNERS CODEOWNERS", help = "Githib CODEOWNERS" }
+format = { shell = "black --check --diff ." }
+add = { shell = "git add -A" }
+ibtl = { sequence = ["isort", "black", "tests", "lint"] }
+doctests = { shell = "poetry run pytest --doctest-modules --verbose cruft", help = "doctest's" }
+deps = { shell = "poetry install --with local-dev,test,docs", help = "Install project dependencies" }
+prepare = { sequence = ["locks", "deps", "formats", "tests", "gcl", "gitown", "docs-make", "add", "hooks"], help = "Do things to prepare for release" }
+docs-make = { shell = "make docs || true" }
+docs-build = { shell = "[ -z 'cruftsite' ] || { rm -fr site || true; PYTHONPATH=cruft poetry run portray as_html; }" }
+docs-serve = { shell = "[ -z 'cruftsite' ] || { rm -fr site || true; PYTHONPATH=cruft poetry run portray in_browser --reload; }" }
+pu = { shell = "poetry update", help = "Poetry update" }
+pule = { sequence = ["pu", "locks", "exports"], help = "Poetry update and exports" }
+exports = { sequence = ["export", "export-dev"], help = "Do things to export" }
+formats = { sequence = ["isort", "black"], help = "Run checks" }
+locks = { sequence = ["set-lock", "check-lock"], help = "Manage poetry.lock" }
+ruff = { shell = "[ -z 'crufttests' ] || { ruff check cruft tests; }", help = "Ruff linter" }
+ruff-noqa = { shell = "[ -z 'crufttests' ] || { ruff check --select RUF --fix cruft tests; }", help = "Ruff linter fix noqa" }
+ruff-watch = { shell = "[ -z 'crufttests' ] || { poe formats; ruff check --watch cruft tests; }", help = "Ruff linter in watch mode" }
+ruff-fix = { shell = "[ -z 'crufttests' ] || { ruff check --fix-only cruft tests; }", help = "Ruff linter fixes" }
+tflint = { shell = "env bash bin/run-tflint.sh", help = "Terraform linter" }
+tffmt = { shell = "terraform fmt -list=true -recursive -write=true", help = "Terraform formatting" }
+cruft = { shell = "git add -A ; poe cruft-checkout :latest:; git status ", help = "Update cruft to latest" }
+cruft-chore = { shell = "git add -A ; git commit -m 'chore: cruft update'; [ ! -f VERSION ] || { cat VERSION; git tag --force $(cat VERSION); }; [ 0 -ne $? ] || { git push; git push --tags --force; }", help = "Commit cruft updates" }
+cruft-latest = { shell = "poe cruft-checkout :latest: ", help = "Update cruft to latest" }
+cruft-all = { sequence = ["cruft", "cruft-chore"], help = "Update cruft stuff in one go." }
+
+[tool.poe.tasks.lint]
+shell = """
+[ -z 'crufttests' ] || {
+python -m black --check cruft tests;
+python -m isort --check-only cruft tests;
+ruff check cruft tests;
+}
+"""
+help = "Do a few lint checks"
+
+[tool.poe.tasks.test-cov]
+shell = """
+[ -z 'crufttests' ] || {
+coverage run -m pytest --doctest-modules cruft tests;
+coverage combine;
+coverage lcov -o coverage/lcov.info;
+coverage report;
+}
+"""
+help = "Check test coverage"
+
+[tool.poe.tasks.export-dev]
+shell = """
+export PYTHONWARNINGS=ignore::Warning:setuptools.command.install
+python3 -m poetry export --without-hashes --with dev -f requirements.txt -o requirements-dev.txt
+"""
+help = "Export poetry deps to requirements-dev.txt"
+interpreter = "bash"
+
+[tool.poe.tasks.export]
+shell = """
+export PYTHONWARNINGS=ignore::Warning:setuptools.command.install
+python3 -m poetry export --without-hashes -f requirements.txt -o requirements.txt
+"""
+help = "Export poetry deps to requirements.txt"
+env = { "PYTHONWARNINGS" = "ignore::Warning:setuptools.command.install" }
+interpreter = "bash"
+
+[tool.poe.tasks.cruft-checkout]
+shell = "cruft update --force --strict --override --allow-modified-files --checkout ${checkout}"
+help = "Run cruft update"
+args = [
+    { name = "checkout", positional=true, help = "Tag to check out", required = true, multiple = false },
+]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "2.12.0post3"
+version_files = [
+    ".bumpversion.cfg",
+    "VERSION",
+    "pyproject.toml:version",
+]
+tag_format = "v$version"
+style = [
+    ["qmark", "fg:#ff9d00 bold"],
+    ["question", "bold"],
+    ["answer", "fg:#ff9d00 bold"],
+    ["pointer", "fg:#ff9d00 bold"],
+    ["highlighted", "fg:#ff9d00 bold"],
+    ["selected", "fg:#cc5454"],
+    ["separator", "fg:#cc5454"],
+    ["instruction", ""],
+    ["text", ""],
+    ["disabled", "fg:#858585 italic"]
+]
+
+[tool.portray]
+docs_dir = "docs"
+output_dir = "site"
+modules = ["cruft"]
+port = 8000
+append_directory_to_python_path = true
+include_reference_documentation = true
+extra_markdown_extensions = ["admonition", "codehilite", "extra"]
+
+[tool.portray.pdocs]
+# TODO: [2023-01-25 Christo]: excluded_modules = ["cli.console.vendor",]
+
+[tool.portray.mkdocs]
+site_name = "Cookiecutter"
+site_description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
+site_url = "https://cruft.docs.infra-area2.com/"
+repo_url = "https://github.com/SandsB2B/cruft"
+edit_uri = "edit/master"
+copyright = "(c) 2022 Las Vegas Sands"
+
+extra = { generator = false }
+extra_css = ["/docs/css/termynal.css", "/docs/css/custom.css"]
+extra_javascript = ["/docs/js/termynal.js", "/docs/js/custom.js"]
+strict = true
+#hooks = [ "docs/hooks/clusters_hook.py" ] [2023-01-26 Christo] Requires 1.4.x
+
+#[tool.portray.mkdocs.plugins]
+#"mkdocs-simple-hooks" = { hooks = { "on_config" = "docs.hooks.clusters:on_config" } }
+
+[tool.portray.mkdocs.theme]
+name = "material"
+features = [ "search.suggest", "search.highlight", "content.tabs.link" ]
+icon = { repo = "fontawesome/brands/github" }
+custom_dir = "docs/overrides"
+
+[[tool.portray.mkdocs.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "green"
+accent = "brown"
+toggle = { icon = "material/lightbulb", name = "Switch to light mode" }
+
+[[tool.portray.mkdocs.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "green"
+accent = "yellow"
+toggle = { icon = "material/lightbulb-outline", name = "Switch to dark mode" }
+
+[tool.cruft]
+skip= [".bumpversion.cfg","README.md",".gitignore","tests",".github/workflows/build-test-publish.yml","poetry.toml",".gitignore",]
