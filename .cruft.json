@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "9263b80db223328a2880d7b9e1bd04dba7646cab",
-  "checkout": "v0.16.10",
+  "commit": "66345b90659b145e591e1e86e219fe535a1e22b8",
+  "checkout": "v0.16.14",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -48,6 +48,7 @@
       "black_line_length": "100",
       "black_skip_string_normalization": "true",
       "black_target_version": "'py39'",
+      "isort_profile": "black",
       "enable_prospector": "False",
       "prospector_ignore_paths": "debug,environment/,bin/,.pytest_cache/,purgatory/",
       "pre_commit_check_yaml_excludes": "cookiecutter/.*",
@@ -73,6 +74,7 @@
         "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
       ],
       "build_system": {},
+      "tox_legacy_ini": {},
       "poetry_dependencies": {
         "cookiecutter": "~2.1.1post3",
         "gitpython": ">=3.0",
@@ -124,6 +126,7 @@
       "poetry_docs_dependencies": {
         "pymdown-extensions": ">=10.0"
       },
+      "poetry_extras": {},
       "poetry_packages": {
         "1": {
           "include": "cruft"
@@ -135,6 +138,7 @@
       },
       "poetry_urls": {},
       "poe_tasks": {},
+      "portray_mkdocs_theme": {},
       "pytest_ini_options": {},
       "tools": {},
       "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git"
