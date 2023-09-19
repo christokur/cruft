@@ -2,7 +2,7 @@ name: Build, Test and Publish
 
 on:
   push:
-    branches: [ "v2" ]
+    branches: [ "b2b" ]
 #  pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
