@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "66345b90659b145e591e1e86e219fe535a1e22b8",
-  "checkout": "v0.16.14",
+  "commit": "c14ab10d44412c51815c7cf244c25788140e8cfa",
+  "checkout": "v0.16.15",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -31,7 +31,7 @@
       "python_ci_versions": "3.10,3.11,3.9",
       "python_ci_build_version": "3.9",
       "python_requires": ">=3.7",
-      "python_toolbag_version": "~0.18.5",
+      "python_toolbag_version": "",
       "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml,.gitignore",
       "src_path_prefix": "cruft",
       "site_name": "Cookiecutter",
@@ -76,7 +76,7 @@
       "build_system": {},
       "tox_legacy_ini": {},
       "poetry_dependencies": {
-        "cookiecutter": "~2.1.1.post3",
+        "cookiecutter": "~2.1.1post3",
         "gitpython": ">=3.0",
         "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
@@ -85,7 +85,7 @@
         "packaging": ">=21.3"
       },
       "poetry_dev_dependencies": {
-        "python-toolbag": "~0.18.5",
+        "python-toolbag": "",
         "bandit": ">=1.6",
         "black": ">=22.12.0",
         "examples": "{ version = '>=1.0.2', python = '>=3.7.0,<4.0'}",
@@ -121,8 +121,7 @@
         "prospector": "{ git = 'https://github.com/christokur/prospector.git', extras = ['with-everything'], branch = 'master' }",
         "pyproject-fmt": "{ version = '~0.13.0' }",
         "ruff": ">=0.0.280",
-        "semver": ">=3.0.0,<4.0.0",
-        "python-toolbag": "~0.18.5"
+        "semver": ">=3.0.0,<4.0.0"
       },
       "poetry_docs_dependencies": {
         "pymdown-extensions": ">=10.0"
