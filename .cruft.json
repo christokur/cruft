@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "bc95c5bafa7e60464e2552a188f031373b30a53f",
-  "checkout": "v0.16.10",
+  "commit": "92523fc678ff277f3c7212a951184482bafbbe43",
+  "checkout": "v0.16.13",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -32,7 +32,7 @@
       "python_ci_build_version": "3.9",
       "python_requires": ">=3.7",
       "python_toolbag_version": "~0.18.5",
-      "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests/__init__.py,tests/conftest.py,.github/workflows/build-test-publish.yml",
+      "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml",
       "src_path_prefix": "cruft",
       "site_name": "Cookiecutter",
       "site_description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
@@ -43,12 +43,12 @@
       "theme_dark_primary": "green",
       "theme_dark_accent": "yellow",
       "tox_enable": "False",
-      "tox_legacy_ini": {},
       "coverage_fail_under": "5",
       "black_exclude": "/(tests/hooks-abort-render/hooks|docs\\/HelloCookieCutter1)/",
       "black_line_length": "100",
       "black_skip_string_normalization": "true",
       "black_target_version": "'py39'",
+      "isort_profile": "hug",
       "enable_prospector": "False",
       "prospector_ignore_paths": "debug,environment/,bin/,.pytest_cache/,purgatory/",
       "pre_commit_check_yaml_excludes": "cookiecutter/.*",
@@ -60,12 +60,6 @@
       "poetry_url_documentation": "",
       "poetry_url_homepage": "https://github.com/cookiecutter/cookiecutter",
       "portray_pdocs_modules": "",
-      "portray_mkdocs_theme": {
-        "favicon": "\"art/logo.png\"",
-        "logo": "\"art/logo.png\"",
-        "name": "\"material\"",
-        "palette": "{primary = \"orange\", accent = \"cyan\"}"
-      },
       "docs_domain_name": "docs.infra-area2.com",
       "docs_hosted_zone_id": "Z0827901K2W3PZV3XWL1",
       "op_vault": "b2b-cloud-infra",
@@ -80,16 +74,18 @@
         "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
       ],
       "build_system": {},
+      "tox_legacy_ini": {},
       "poetry_dependencies": {
         "cookiecutter": "~2.1.1post3",
         "gitpython": ">=3.0",
-        "toml": "{ version = '=0.10' optional = true, python = '<3.11' }",
+        "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
         "click": ">= 7.1.2",
-        "importlib-metadata": "{version = '>=2.0.0,<5.0.0', python = '<3.8'}",
+        "importlib-metadata": "{version = \">=2.0.0,<5.0.0\", python = \"<3.8\"}",
         "packaging": ">=21.3"
       },
       "poetry_dev_dependencies": {
+        "python-toolbag": "~0.18.5",
         "bandit": ">=1.6",
         "black": ">=22.12.0",
         "examples": "{ version = '>=1.0.2', python = '>=3.7.0,<4.0'}",
@@ -145,6 +141,12 @@
       },
       "poetry_urls": {},
       "poe_tasks": {},
+      "portray_mkdocs_theme": {
+        "favicon": "\"art/logo.png\"",
+        "logo": "\"art/logo.png\"",
+        "name": "\"material\"",
+        "palette": "{primary = \"orange\", accent = \"cyan\"}"
+      },
       "pytest_ini_options": {},
       "tools": {},
       "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git"
