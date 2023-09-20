@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "c14ab10d44412c51815c7cf244c25788140e8cfa",
-  "checkout": "v0.16.15",
+  "commit": "a71e1bb7243415eaabe5a80493b832a82d7e1342",
+  "checkout": "v0.16.16",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -13,7 +13,7 @@
       "description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "license_text": "MIT",
       "readme": "README.md",
-      "version": "2.12.0post3",
+      "version": "2.12.0post4",
       "package_name": "cruft",
       "packager": "poetry",
       "dynamic": "",
@@ -26,7 +26,7 @@
       "prompt_toolkit_version": "~3.0.37",
       "python_version_min": "3.9.16",
       "python_major_minor_min": "3.9",
-      "python_major_minor_max": "3.11",
+      "python_major_minor_max": "3.12",
       "python_major_minor_docs": "3.9",
       "python_ci_versions": "3.10,3.11,3.9",
       "python_ci_build_version": "3.9",
