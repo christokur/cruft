@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "a71e1bb7243415eaabe5a80493b832a82d7e1342",
-  "checkout": "v0.16.16",
+  "commit": "c6ee22633af4271ac76599bda0ccde6883a31eb3",
+  "checkout": "v0.16.23",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -76,7 +76,7 @@
       "build_system": {},
       "tox_legacy_ini": {},
       "poetry_dependencies": {
-        "cookiecutter": "~2.1.1post3",
+        "cookiecutter": "~2.1.1post5",
         "gitpython": ">=3.0",
         "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
@@ -115,10 +115,8 @@
         "gitlint": "{ version = '~0.19.1' }",
         "gitown": "{ git = 'https://github.com/christokur/gitown.git', tag = 'v0.2.6' }",
         "isort": "{ version = '~5.11.5' }",
-        "poetry-plugin-bump2version": "{ version = '>=0.11.1' }",
         "pre-commit": "{ version = '~2.21.0' }",
         "prompt-toolkit": "~3.0.37",
-        "prospector": "{ git = 'https://github.com/christokur/prospector.git', extras = ['with-everything'], branch = 'master' }",
         "pyproject-fmt": "{ version = '~0.13.0' }",
         "ruff": ">=0.0.280",
         "semver": ">=3.0.0,<4.0.0"
