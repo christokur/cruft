@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "cf7377b22993760501bc2fe10e9e71fc7dbf6d93",
-  "checkout": "v0.16.28",
+  "commit": "dd6a10debc090ac262bc5256f2d7714daf7b1792",
+  "checkout": "v0.16.29",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -13,7 +13,7 @@
       "description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "license_text": "MIT",
       "readme": "README.md",
-      "version": "2.12.0post6",
+      "version": "2.12.0post7",
       "package_name": "cruft",
       "packager": "poetry",
       "dynamic": "",
@@ -76,7 +76,7 @@
       "build_system": {},
       "tox_legacy_ini": {},
       "poetry_dependencies": {
-        "cookiecutter": "~2.1.1post5",
+        "cookiecutter": "~2.1.1post6",
         "gitpython": ">=3.0",
         "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
@@ -111,7 +111,7 @@
         "black": "{ version = '~23.7.0', extras = ['d']}",
         "bump2version": "~1.0.2-beta4",
         "commitizen": "{ version = '~2.42.1' }",
-        "cruft": "2.12.0post6",
+        "cruft": "2.12.0post4",
         "gitlint": "{ version = '~0.19.1' }",
         "gitown": "{ git = 'https://github.com/christokur/gitown.git', tag = 'v0.2.6' }",
         "isort": "{ version = '~5.11.5' }",

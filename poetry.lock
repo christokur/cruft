@@ -533,12 +533,12 @@ reference = "codeartifact"
 
 [[package]]
 name = "cookiecutter"
-version = "2.1.1.post5"
+version = "2.1.1.post6"
 description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
 optional = false
 python-versions = ">=3.9.16,<3.12.0"
 files = [
-    {file = "cookiecutter-2.1.1.post5-py3-none-any.whl", hash = "sha256:74869b224a65f5e6133cba2641e73a0349a15c8aa083cfa6207ab2f3102788df"},
+    {file = "cookiecutter-2.1.1.post6-py3-none-any.whl", hash = "sha256:86db99ae3eb126f9e57d426443460ea8f0312b41281ddb79bb2c171dfd0900aa"},
 ]
 
 [package.dependencies]
@@ -4299,4 +4299,4 @@ reference = "codeartifact"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.16,<3.12.0"
-content-hash = "59ff11f3ae9a6653e7b161ce00bf891ea13ef351ef68a5bfec188cdadd0ce3ae"
+content-hash = "1711bfc74bb858606d6f70ba4f4300005b49b775cbbffe98b1a4908b20dc9a8a"
