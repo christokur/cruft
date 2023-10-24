@@ -4,20 +4,32 @@
 #set -x
 set +e
 
+function aws_setup_pip_codeartifact_access() {
+    set +e
+    ca_repo=${1:-pypi}
+    export PAGER=''
+    export AWS_PROFILE=${AWS_PROFILE:-${AWS_PROFILE_TOOLS:-cloud-services-prod}}
+    aws codeartifact login --tool pip --repository ${ca_repo} --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --profile=$AWS_PROFILE --region=${AWS_REGION_TOOLS:-us-east-2}
+}
+
 function aws_setup_codeartifact_access() {
     set +e
+    ca_repo=${1:-pypi}
+    poetry_repo=${2:-codeartifact}
     export PAGER=''
     #export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
     export AWS_PROFILE=${AWS_PROFILE:-${AWS_PROFILE_TOOLS:-cloud-services-prod}}
     aws sts get-caller-identity --profile=$AWS_PROFILE 2>&1
-    aws codeartifact login --tool pip --repository pypi --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --profile=$AWS_PROFILE --region=${AWS_REGION_TOOLS:-us-east-2}
-    AWS_CODEARTIFACT_GRE=$(aws codeartifact get-repository-endpoint --domain artifacts --domain-owner ${AWS_ACCOUNT_TOOLS} --profile ${AWS_PROFILE} --region ${AWS_REGION_TOOLS} --repository pypi --format pypi --query @.repositoryEndpoint --output text)
+
+    aws_setup_pip_codeartifact_access ${ca_repo}
+
+    AWS_CODEARTIFACT_GRE=$(aws codeartifact get-repository-endpoint --domain artifacts --domain-owner ${AWS_ACCOUNT_TOOLS} --profile ${AWS_PROFILE} --region ${AWS_REGION_TOOLS} --repository ${ca_repo} --format pypi --query @.repositoryEndpoint --output text)
     AWS_CODEARTIFACT_GAT=$(aws codeartifact get-authorization-token --domain artifacts --domain-owner ${AWS_ACCOUNT_TOOLS} --profile ${AWS_PROFILE} --region ${AWS_REGION_TOOLS} --query @.authorizationToken --output text)
 
-    poetry config --unset repos.codeartifact || true
-    poetry config repo.codeartifact ${AWS_CODEARTIFACT_GRE}
-    poetry config http-basic.codeartifact aws ${AWS_CODEARTIFACT_GAT}
+    poetry config --unset repos.${poetry_repo} || true
+    poetry config repo.${poetry_repo} ${AWS_CODEARTIFACT_GRE}
+    poetry config http-basic.${poetry_repo} aws ${AWS_CODEARTIFACT_GAT}
 
     set | egrep -e '^(POETRY|PYTHON|AWS)'; poetry config --list || true
-    aws codeartifact login --tool twine --repository pypi --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --profile=$AWS_PROFILE --region=${AWS_REGION_TOOLS:-us-east-2}
+    aws codeartifact login --tool twine --repository ${ca_repo} --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --profile=$AWS_PROFILE --region=${AWS_REGION_TOOLS:-us-east-2}
 }

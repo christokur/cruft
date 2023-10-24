@@ -151,7 +151,12 @@ def _remove_paths(root: Path, paths_to_remove: Set[Union[Path, str]]):
     abs_paths_to_remove = []
     for path_to_remove in paths_to_remove:
         if isinstance(path_to_remove, Path):
-            abs_paths_to_remove.append(root / path_to_remove)
+            if path_to_remove.is_absolute():
+                abs_paths_to_remove.append(path_to_remove)
+            elif (root / path_to_remove).exists():
+                abs_paths_to_remove.append(root / path_to_remove)
+            else:
+                abs_paths_to_remove += list(root.glob(str(path_to_remove)))
         elif isinstance(path_to_remove, str):  # assumes the string is a glob-pattern
             abs_paths_to_remove += list(root.glob(path_to_remove))
         else:

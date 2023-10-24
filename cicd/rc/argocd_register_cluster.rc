@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+function argocd_connect() {
+    [ ! -z "${ARGOCD_HOSTNAME}" ] || { echo 'Set ARGOCD_HOSTNAME' ; exit 1 ; }
+    [ ! -z "${ARGOCD_USERNAME}" ] || { echo 'Set ARGOCD_USERNAME' ; exit 1 ; }
+
+    echo "ArgoCD connection check ..."
+    set +o errexit
+    argocd cluster list 1>/dev/null
+    RC=$?
+    set -o errexit
+
+    ARGOCD_CONTEXT=$(argocd context 2>/dev/null | egrep -e '^\*' | awk '{print $2}')
+    echo "ARGOCD_CONTEXT=$ARGOCD_CONTEXT; ARGOCD_HOSTNAME=$ARGOCD_HOSTNAME;"
+
+    [ "$ARGOCD_HOSTNAME" != "$ARGOCD_CONTEXT" -o 0 -ne $RC ] || {
+      echo "Existing connection good enough"
+      return 0
+    }
+    echo "Need to log in to ArgoCD"
+    argocd login ${ARGOCD_HOSTNAME} --sso --username ${ARGOCD_USERNAME}
+}
+
+function argocd_update_cluster() {
+    argocd_connect
+    #set -x
+    ACTION=${1:-list}
+    ENVIRONMENT_NAME=${2:-$ENVIRONMENT_NAME}
+    COMMAND=${3:-list}
+    MESSAGE=${4:-'$ENVIRONMENT_NAME update'}
+    [ ! -z "${CLUSTER_NAMES}" ] || { echo 'Set CLUSTER_NAMES' ; exit 1 ; }
+
+    [ -z "$CLUSTER_NAMES" ] || for CLUSTER_NAME in $CLUSTER_NAMES; do
+      [ -z "$(echo $CLUSTER_NAME | grep $ENVIRONMENT_NAME)" ] || {
+          echo CLUSTER_NAME=$CLUSTER_NAME
+
+          KUBECTL_CONTEXT=$(kubectl config get-contexts | grep $CLUSTER_NAME | grep $ENVIRONMENT_NAME | awk '{ print $2}')
+          echo KUBECTL_CONTEXT=$KUBECTL_CONTEXT
+          [ ! -z "$KUBECTL_CONTEXT" ] || {
+            echo "kubectl config context for cluster:$CLUSTER_NAME environment:$ENVIRONMENT_NAME not set? make kubeconfig?"
+            return 1
+          }
+          KUBECTL_CLUSTER=$(echo $KUBECTL_CONTEXT | cut -d / -f 2)
+          echo KUBECTL_CLUSTER=$KUBECTL_CLUSTER
+
+          ARGOCD_CLUSTERS=$( argocd cluster list 2>&1 | grep $KUBECTL_CONTEXT 2>/dev/null || true)
+          echo "Existing ARGOCD_CLUSTERS='$(echo $ARGOCD_CLUSTERS | cut -d ' ' -f 1)'"
+          echo ''
+          if [ "$ACTION" == "register" -a -z "$ARGOCD_CLUSTERS" -o "$ACTION" == "unregister" -a ! -z "$ARGOCD_CLUSTERS" ] ; then
+
+              CLUSTER_URL=$(aws eks describe-cluster --region $AWS_REGION --name $CLUSTER_NAME --profile=$AWS_PROFILE --query=@.cluster.endpoint | sed 's/"//g')
+              echo CLUSTER_URL=$CLUSTER_URL
+
+              [ -z "$ARGOCD_DEBUG" ] || echo "argocd cluster $(eval "echo $COMMAND")"
+              argocd cluster $(eval "echo $COMMAND")
+
+          else
+            echo $(eval "echo $MESSAGE")
+          fi
+      }
+    done
+}
+
+function argocd_register_cluster() {
+    argocd_update_cluster register $1 'add $KUBECTL_CONTEXT --name=$KUBECTL_CONTEXT -y' '$KUBECTL_CONTEXT already registered'
+}
+
+function argocd_unregister_cluster() {
+    argocd_update_cluster unregister $1 'rm $KUBECTL_CONTEXT -y' '$KUBECTL_CONTEXT not registered'
+}
