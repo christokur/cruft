@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "509fab8ce271587598ee0d01f9efb6adbf10a641",
-  "checkout": "v0.18.26",
+  "commit": "7a3f9d4cda82860de4b7f68d25c00642b88a71a2",
+  "checkout": "v0.20.18",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -13,11 +13,11 @@
       "description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "license_text": "MIT",
       "readme": "README.md",
-      "version": "2.12.0post9",
+      "version": "2.12.0post10",
       "package_name": "cruft",
       "packager": "poetry",
       "dynamic": "",
-      "poetry_version": "~1.6.0",
+      "poetry_version": "~1.6.1",
       "poetry_source_name": "codeartifact",
       "poetry_source_url": "https://artifacts-433714148419.d.codeartifact.us-east-2.amazonaws.com/pypi/pypi/simple/",
       "testpaths": "tests",
@@ -30,7 +30,7 @@
       "python_major_minor_docs": "3.10",
       "python_ci_versions": "3.8,3.9,3.10,3.11",
       "python_ci_build_version": "3.10",
-      "python_requires": ">=3.7",
+      "python_requires": ">=3.10.13",
       "python_toolbag_version": "~0.22.2",
       "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml,.gitignore",
       "src_path_prefix": "cruft",
@@ -73,6 +73,7 @@
       "gh_pages_branches": "main",
       "gh_build_branches": "\"*\"",
       "gh_matrix_os": "ubuntu-latest",
+      "pytest_doctest_option": "--doctest-modules",
       "ruff_extend_exclude": "",
       "_extensions": [
         "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
@@ -85,7 +86,7 @@
       "poetry_source_urls": {},
       "tox_legacy_ini": {},
       "poetry_dependencies": {
-        "cookiecutter": "~2.1.1post6",
+        "cookiecutter": "~2.2.0post1",
         "gitpython": ">=3.0",
         "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
@@ -120,13 +121,13 @@
         "black": "{ version = '~23.9.1', extras = ['d']}",
         "bump2version": "~1.0.2-beta4",
         "commitizen": "{ version = '~2.42.1' }",
-        "cruft": "2.12.0post9",
+        "cruft": "2.12.0post10",
         "gitlint": "{ version = '~0.19.1' }",
         "isort": "{ version = '~5.11.5' }",
         "pre-commit": "{ version = '~2.21.0' }",
         "prompt-toolkit": "~3.0.28",
         "pyproject-fmt": "{ version = '~0.13.0' }",
-        "ruff": ">=0.0.292",
+        "ruff": ">=0.1.1",
         "semver": ">=3.0.0,<4.0.0"
       },
       "poetry_docs_dependencies": {
