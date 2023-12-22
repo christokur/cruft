@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "7a3f9d4cda82860de4b7f68d25c00642b88a71a2",
-  "checkout": "v0.20.18",
+  "commit": "8554e68818e94af3a61cced504a4442df08aa650",
+  "checkout": "v0.21.0",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -13,7 +13,7 @@
       "description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "license_text": "MIT",
       "readme": "README.md",
-      "version": "2.12.0post10",
+      "version": "2.12.0post11",
       "package_name": "cruft",
       "packager": "poetry",
       "dynamic": "",
@@ -31,7 +31,7 @@
       "python_ci_versions": "3.8,3.9,3.10,3.11",
       "python_ci_build_version": "3.10",
       "python_requires": ">=3.10.13",
-      "python_toolbag_version": "~0.22.2",
+      "python_toolbag_version": "~0.23.4",
       "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml,.gitignore",
       "src_path_prefix": "cruft",
       "site_name": "Cookiecutter",
@@ -76,7 +76,9 @@
       "pytest_doctest_option": "--doctest-modules",
       "ruff_extend_exclude": "",
       "_extensions": [
-        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
+        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension",
+        "toolbag.utils.template_expander.extensions.PythonExtension",
+        "toolbag.utils.template_expander.extensions.ExpandCookiecutterTemplateExtension"
       ],
       "_notes": {
         "lists": "Lists have a special meaning for Cookiecutter so we are forced to wrap them in a map or express as a CSV string and split in the template.",
@@ -86,7 +88,8 @@
       "poetry_source_urls": {},
       "tox_legacy_ini": {},
       "poetry_dependencies": {
-        "cookiecutter": "~2.2.0post1",
+        "python-toolbag": "~0.23.4",
+        "cookiecutter": "~2.2.0post3",
         "gitpython": ">=3.0",
         "toml": "{ version = \">=0.10\", optional = true, python = \"<3.11\" }",
         "typer": ">=0.4.0",
@@ -95,7 +98,7 @@
         "packaging": ">=21.3"
       },
       "poetry_dev_dependencies": {
-        "python-toolbag": "~0.22.2",
+        "python-toolbag": "~0.23.4",
         "bandit": ">=1.6",
         "black": ">=22.12.0",
         "examples": "{ version = '>=1.0.2', python = '>=3.7.0,<4.0'}",
@@ -121,7 +124,7 @@
         "black": "{ version = '~23.9.1', extras = ['d']}",
         "bump2version": "~1.0.2-beta4",
         "commitizen": "{ version = '~2.42.1' }",
-        "cruft": "2.12.0post10",
+        "cruft": "2.12.0post11",
         "gitlint": "{ version = '~0.19.1' }",
         "isort": "{ version = '~5.11.5' }",
         "pre-commit": "{ version = '~2.21.0' }",

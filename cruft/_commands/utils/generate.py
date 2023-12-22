@@ -3,10 +3,10 @@ import stat
 import sys
 from pathlib import Path
 from shutil import move, rmtree
+from toolbag.utils.template_expander._main import generate_files
 from typing import Optional, Set, Union
 from warnings import warn
 
-from cookiecutter.generate import generate_files
 from git import Repo
 
 from .cookiecutter import CookiecutterContext, generate_cookiecutter_context
