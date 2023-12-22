@@ -625,12 +625,12 @@ reference = "codeartifact"
 
 [[package]]
 name = "cookiecutter"
-version = "2.2.0.post3"
+version = "2.2.0.post4"
 description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
 optional = false
 python-versions = ">=3.10.13,<3.12.0"
 files = [
-    {file = "cookiecutter-2.2.0.post3-py3-none-any.whl", hash = "sha256:e0b91b6bfb6c7debbbf563fa8737a784d0b3507c74d93cba5dab9dd34d46cded"},
+    {file = "cookiecutter-2.2.0.post4-py3-none-any.whl", hash = "sha256:f683533aba6df9b4a4050378cf61f485a4fa0d0bb18161ac8514a1dae3766587"},
 ]
 
 [package.dependencies]
@@ -3261,18 +3261,18 @@ reference = "codeartifact"
 
 [[package]]
 name = "python-toolbag"
-version = "0.23.4"
+version = "0.23.5"
 description = "A useful set of datastructures."
 optional = false
 python-versions = ">=3.10.13,<3.12.0"
 files = [
-    {file = "python_toolbag-0.23.4-py3-none-any.whl", hash = "sha256:2c27f5db077970257373ed39b4b8db82e519c54fc48480399e4a8310cd94ca4a"},
-    {file = "python_toolbag-0.23.4.tar.gz", hash = "sha256:afbe95849de443327b3f0135e7840704ec57583bcc2ba351443a7a7d9b5b325c"},
+    {file = "python_toolbag-0.23.5-py3-none-any.whl", hash = "sha256:6b507c808de7c4801e9473cec3fbe588a06c2de1dc38f9dc9ea6e020ac729104"},
+    {file = "python_toolbag-0.23.5.tar.gz", hash = "sha256:5ab65eb4f5d2cf74de6e7f5f95b160e5d1aea37ee1df4ff07ede097029f15151"},
 ]
 
 [package.dependencies]
 awscli = "2.13.25.post1"
-cruft = "2.12.0post10"
+cruft = "2.12.0post12"
 deepmerge = ">=1.1.0,<1.2.0"
 inflection = ">=0.5.1,<0.6.0"
 Jinja2 = ">=3.1.2,<3.2.0"
@@ -4537,4 +4537,4 @@ reference = "codeartifact"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.13,<3.12.0"
-content-hash = "4fe0a45d448e3f36d8bd8007a4ac94dc60867b1a82efc4f434b4217060be09f1"
+content-hash = "a73fc835acd5363a78f5c3e435e99044ee06932419dba501a7e2a43392772f82"

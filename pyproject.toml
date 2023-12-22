@@ -7,7 +7,7 @@ requires = [
 
 [tool.poetry]
 name = "cruft"
-version = "2.12.0post12"
+version = "2.12.0post13"
 description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
 authors = [ "Timothy Crosley <timothy.crosley@gmail.com>" ]
 license = "MIT"
@@ -57,8 +57,8 @@ generate-setup-file = false
 
 [tool.poetry.dependencies]
 python = ">=3.10.13,<3.12.0"
-python-toolbag = "~0.23.4"
-cookiecutter = "~2.2.0post3"
+python-toolbag = "~0.23.5"
+cookiecutter = "~2.2.0post4"
 gitpython = ">=3.0"
 toml = { version = ">=0.10", optional = true, python = "<3.11" }
 typer = ">=0.4.0"
@@ -344,7 +344,7 @@ args = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.12.0post12"
+version = "2.12.0post13"
 version_files = [
     ".bumpversion.cfg",
     "VERSION",
