@@ -138,7 +138,7 @@
         "black": "{ version = '~23.9.1', extras = ['d']}",
         "bump2version": "~1.0.2-beta4",
         "commitizen": "{ version = '~2.42.1' }",
-        "cruft": "2.12.0post10",
+        "cruft": "2.12.0post13",
         "gitlint": "{ version = '~0.19.1' }",
         "isort": "{ version = '~5.11.5' }",
         "pre-commit": "{ version = '~2.21.0' }",
