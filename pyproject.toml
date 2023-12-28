@@ -182,7 +182,7 @@ extend-exclude = ["debug"]
 fixable = ["A", "ANN", "ARG", "B", "BLE", "C", "COM", "D", "DTZ", "E", "EM", "ERA", "EXE", "F", "FBT", "G", "I", "ICN", "INP", "ISC", "N", "PD", "PGH", "PIE", "PL", "PT", "PTH", "Q", "RET", "RUF", "S", "SIM", "T", "TCH", "TID", "TRY", "UP", "W", "YTT"]
 # Group violations by containing file.
 output-format = "pylint"
-ignore = [ "ANN002", "ANN003", "ANN101", "D211","D213", "S101", "T20", "EM101", "EM102", "ERA001", "D417", "BLE001", "RET504", "UP038" ]
+ignore = [ "ANN002", "ANN003", "ANN101", "D211","D213", "S101", "T20", "EM101", "EM102", "ERA001", "D417", "BLE001", "RET504", "UP038", "D212", "D407" ]
 # Same as Black.
 line-length = 120
 per-file-ignores = {}
@@ -225,6 +225,7 @@ norecursedirs = [
     "build",
     "dist",
 ]
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 
 [tool.coverage.run]
 command_line = "-m pytest --doctest-modules"
@@ -374,7 +375,7 @@ include_reference_documentation = true
 extra_markdown_extensions = ["admonition", "codehilite", "extra"]
 
 [tool.portray.pdocs]
-# TODO: [2023-01-25 Christo]: excluded_modules = ["cli.console.vendor",]
+# TO_DO: [2023-01-25 Christo]: excluded_modules = ["cli.console.vendor",]
 
 [tool.portray.mkdocs]
 site_name = "Cookiecutter"
