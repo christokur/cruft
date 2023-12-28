@@ -51,6 +51,8 @@ def cookiecutter_template(
         deleted_paths.update(_get_deleted_files(output_dir, project_dir))
     # We now remove skipped and deleted paths from the project
     _remove_paths(output_dir, skip_paths | deleted_paths)  # type: ignore
+    if extensions := context.get("cookiecutter", {}).get("_extensions", []):
+        context["cookiecutter"]["_extensions"] = list(set(extensions))
 
     return context
 
