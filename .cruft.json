@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "9a9de257d071696daa1fc323e9a985afe4838d91",
-  "checkout": "v0.22.0",
+  "commit": "f45aa5832ba29b3d6b9140925ab5cbc8aab75ab7",
+  "checkout": "v0.22.1",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -13,7 +13,7 @@
       "description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "license_text": "MIT",
       "readme": "README.md",
-      "version": "2.12.0post5",
+      "version": "2.12.0post15",
       "package_name": "cruft",
       "packager": "poetry",
       "dynamic": "",
@@ -81,9 +81,9 @@
       "ruff_extend_exclude": "",
       "ruff_ignore": "",
       "_extensions": [
-        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension",
+        "toolbag.utils.template_expander.extensions.ExpandCookiecutterTemplateExtension",
         "toolbag.utils.template_expander.extensions.PythonExtension",
-        "toolbag.utils.template_expander.extensions.ExpandCookiecutterTemplateExtension"
+        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
       ],
       "_notes": {
         "lists": "Lists have a special meaning for Cookiecutter so we are forced to wrap them in a map or express as a CSV string and split in the template.",
@@ -127,15 +127,15 @@
         "black": "{ version = '~23.9.1', extras = ['d']}",
         "bump2version": "~1.0.2-beta4",
         "commitizen": "{ version = '~2.42.1' }",
-        "cruft": "2.12.0post5",
+        "cruft": "2.12.0post15",
         "gitlint": "{ version = '~0.19.1' }",
         "isort": "{ version = '~5.11.5' }",
         "pre-commit": "{ version = '~2.21.0' }",
         "prompt-toolkit": "~3.0.28",
         "pyproject-fmt": "{ version = '~0.13.0' }",
+        "python-toolbag": ">=0.23.22",
         "ruff": ">=0.1.1",
-        "semver": ">=3.0.0,<4.0.0",
-        "python-toolbag": ">=0.23.22"
+        "semver": ">=3.0.0,<4.0.0"
       },
       "poetry_docs_dependencies": {
         "pymdown-extensions": ">=10.0"
