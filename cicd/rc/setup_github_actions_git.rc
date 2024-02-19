@@ -11,7 +11,7 @@ set +e
 function setup_gpg_key() {
     export GPG_TTY=$(tty)
     echo "${CI_GPG_KEY}" >/tmp/key.asc
-    gpg --import /tmp/key.asc
+    gpg --import /tmp/key.asc >/dev/null 2>&1
     #gpg --list-secret-keys --keyid-format=long
     export GIT_SIGNING_KEY_NAME=$(gpg --list-secret-keys --keyid-format=long --with-colons | grep '^sec' | cut -d : -f 5 | tail -1)
 }
@@ -53,9 +53,9 @@ EOF
     eval `ssh-agent -s`
     ssh-add -L || true
     ssh-add -D || true
-    ssh git@github.com -i ~/.ssh/id_ed25519 || true
-    ssh git@github.com || true
-    ssh-add -L || true
+    ssh git@github.com -i ~/.ssh/id_ed25519 >/dev/null 2>&1 || true
+    ssh git@github.com >/dev/null 2>&1 || true
+    ssh-add -L >/dev/null 2>&1 || true
     popd || true
     [ 0 -eq $errexit ] || { set +e; }
     return 0

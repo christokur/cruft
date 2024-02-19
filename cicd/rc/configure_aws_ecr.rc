@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#set | sort
+#set -x
+set +e
+
+function aws_setup_ecr_access() {
+    set +e
+    export PAGER=''
+    export AWS_PROFILE=${AWS_PROFILE:-${AWS_PROFILE_TOOLS:-cloud-services-prod}}
+
+    # Login with Docker
+    aws ecr get-login-password --region ${AWS_REGION_TOOLS} --profile=$AWS_PROFILE | docker \
+      login --username AWS --password-stdin ${AWS_ACCOUNT_TOOLS}.dkr.ecr.${AWS_REGION_TOOLS}.amazonaws.com 2>&1
+}

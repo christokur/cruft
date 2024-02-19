@@ -66,6 +66,7 @@ def _generate_output(
     cruft_state: CruftState, project_dir: Path, cookiecutter_input: bool, output_dir: Path
 ) -> CookiecutterContext:
     from toolbag.utils.template_expander._main import generate_files
+
     inner_dir = project_dir / (cruft_state.get("directory") or "")
 
     new_context = generate_cookiecutter_context(
