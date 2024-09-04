@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         # Put the version we consider mainline and publish with last
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
@@ -27,10 +27,14 @@ jobs:
       AWS_ACCOUNT_TOOLS: "433714148419"
       PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        # Number of commits to fetch. 0 indicates all history for all branches and tags.
+        # Default: 1
+        fetch-depth: 1
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       id: setup_python
       with:
         python-version: ${{ matrix.python-version }}
@@ -40,7 +44,7 @@ jobs:
       run: |
         echo python-path:'${{ steps.setup_python.outputs.python-path }}'
         ${{ steps.setup_python.outputs.python-path }} --version
-        ${{ steps.setup_python.outputs.python-path }} -m pip install poetry==1.6.0
+        ${{ steps.setup_python.outputs.python-path }} -m pip install poetry==1.8.3
       shell: bash
 
     - name: Self-Configure AWS Credentials
@@ -50,27 +54,21 @@ jobs:
         [ type aws_configure_profile 2>/dev/null ] || . $GITHUB_WORKSPACE/cicd/rc/configure_aws_credentials.rc
         aws_check_environment_secrets
 
-        export AWS_PROFILE=default
-        export AWS_ACCOUNT_ID=${AWS_ACCOUNT_TOOLS:-$AWS_ACCOUNT_ID}
-        aws_configure_profile
-        RC=$?
-        #echo RC=$RC
-        [ 0 -ne $RC ] && exit $RC
+        aws_configure_base_profiles
+        export AWS_PROFILE_TOOLS=cloud-services-prod
+        aws_configure_profiles_and_accounts
 
-        export AWS_PROFILE=b2b-master
-        export AWS_ACCOUNT_ID=048648088468
-        aws_configure_profile
-        RC=$?
-        #echo RC=$RC
-        [ 0 -ne $RC ] && exit $RC
-        export AWS_PROFILE=cloud-services-prod
-        unset AWS_ACCOUNT_ID # default to TOOLS
-        aws_configure_profile
-        RC=$?
-        #echo RC=$RC
-        [ 0 -ne $RC ] && exit $RC
+        # For CodeArtifact and in case the consumer does not include in the custom list
+        aws_check_profiles_and_accounts $AWS_PROFILE_TOOLS:${AWS_ACCOUNT_TOOLS:-$AWS_ACCOUNT_ID}
 
-        aws_check_profiles_and_accounts "cloud-services-prod:433714148419"
+        export PAGER=''
+        aws --version
+        set | grep '^(AWS_|GITHUB_|RUNNER_)'
+
+        aws sts get-caller-identity 2>&1
+
+        aws configure list-profiles 2>&1
+
       shell: bash
 
     - name: Set up access to CodeArtifact
@@ -82,13 +80,16 @@ jobs:
 
     - name: Install dependencies and build
       run: |
+        #poetry env use ${{ matrix.python-version }}
+        poetry config --list
+        poetry install --with dev --no-ansi --no-interaction
         pip list
         python -m pip install build
         python -m build --sdist --wheel --outdir dist/ .
       shell: bash
-        
+
     - name: Publish
-      if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest'
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
       run: |
         pip install wheel twine
         cat ~/.pypirc
@@ -98,6 +99,6 @@ jobs:
         #set | grep TWINE
         for whl in dist/*.whl; do
           #twine upload --repository-url $TWINE_REPOSITORY_URL -u $TWINE_USERNAME -p $TWINE_PASSWORD --verbose $whl
-          twine upload --verbose --repository codeartifact $whl 
+          twine upload --verbose --repository codeartifact $whl
         done
       shell: bash
