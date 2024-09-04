@@ -7,7 +7,7 @@ requires = [
 
 [tool.poetry]
 name = "cruft"
-version = "2.12.0post16"
+version = "2.12.0post17"
 description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
 authors = [ "Timothy Crosley <timothy.crosley@gmail.com>" ]
 license = "MIT"
@@ -355,7 +355,7 @@ args = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.12.0post16"
+version = "2.12.0post17"
 version_files = [
     ".bumpversion.cfg",
     "VERSION",
