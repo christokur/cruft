@@ -4,6 +4,14 @@
 #set -x
 set +e
 
+function aws_setup_npm_codeartifact_access() {
+    set +e
+    ca_repo=${1:-npm}
+    export PAGER=''
+    export AWS_PROFILE=${AWS_PROFILE:-${AWS_PROFILE_TOOLS:-cloud-services-prod}}
+    aws codeartifact login --tool npm --repository ${ca_repo} --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --profile=$AWS_PROFILE --region=${AWS_REGION_TOOLS:-us-east-2}
+}
+
 function aws_setup_pip_codeartifact_access() {
     set +e
     ca_repo=${1:-pypi}

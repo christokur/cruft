@@ -30,6 +30,7 @@ classifiers = [
     "Topic :: Software Development",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 keywords = [ "cookiecutter","Python","projects","project templates","Jinja2","skeleton","scaffolding","project directory","package","packaging",]
 exclude = [
@@ -39,6 +40,7 @@ packages = [
     { include = "cruft" }
 ]
 
+
 [tool.poetry.scripts]
 cruft = "cruft._cli:app"
 
@@ -46,7 +48,6 @@ cruft = "cruft._cli:app"
 Homepage = "https://github.com/cookiecutter/cookiecutter"
 Documentation = "https://cruft.docs.infra-area2.com/"
 Changelog = "https://github.com/cookiecutter/cookiecutter/blob/main/CHANGELOG.md"
-
 
 [[tool.poetry.source]]
 name = "codeartifact"
@@ -69,6 +70,8 @@ typer = ">=0.4.0"
 click = ">= 8.1.3"
 importlib-metadata = {version = ">=2.0.0,<5.0.0", python = "<3.8"}
 packaging = ">=21.3"
+portray = { git = "https://github.com/christokur/portray.git", branch = "main" }
+pdocs = { git = "https://github.com/christokur/pdocs.git", branch = "master" }
 
 [tool.poetry.group.dev.dependencies]
 invoke = "~2.2.0"
@@ -88,8 +91,6 @@ isort = { version = '~5.13.2' }
 mkdocs = ">=1.2"
 mypy = ">=0.971"
 pep8-naming = ">=0.8.2"
-portray = { git = "https://github.com/christokur/portray.git", branch = "main" }
-pdocs = { git = "https://github.com/christokur/pdocs.git", branch = "master" }
 pytest = ">=6.2.5"
 pytest-cov = ">=3.0"
 pytest-mock = ">=3.3.1"
@@ -115,7 +116,7 @@ bump2version = "~1.0.2-beta6"
 commitizen = { version = '~2.42.1' }
 gitlint = { version = '~0.19.1' }
 pre-commit = { version = '~2.21.0' }
-prompt-toolkit = "~3.0.28"
+prompt-toolkit = "~3.0.47"
 pyproject-fmt = { version = '~0.13.0' }
 #python-toolbag = ">=0.23.22"
 ruff = ">=0.1.1"
@@ -127,6 +128,8 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 #mkdocs = "~1.4.2"
 #portray = "~1.8.0"
+pdocs = { git = "https://github.com/christokur/pdocs.git", branch = "master" }
+portray = { git = "https://github.com/christokur/portray.git", branch = "main" }
 mkdocs-material = { version = ">=8.5.0,<9.0.0" }
 mdx-include = { version = ">=1.4.1,<2.0.0" }
 mkdocs-markdownextradata-plugin = { version = ">=0.1.7,<0.3.0" }
@@ -190,7 +193,7 @@ show-fixes = true
 # By default, always show source code snippets.
 # show-source = false
 # Allow imports relative to the "src" and "test" directories.
-src = ["cruft", "tests", ]
+src = ["cruft", "tests"]
 target-version = "py310"
 
 [tool.ruff.lint]
@@ -282,7 +285,7 @@ gl = { shell = "gitlint", help = "Gitlint last commit" }
 format = { shell = "black --check --diff ." }
 add = { shell = "git add -A" }
 ibtl = { sequence = ["isort", "black", "tests", "lint"] }
-doctests = { shell = "poetry run pytest --doctest-modules --verbose cruft", help = "doctest's" }
+doctests = { shell = "[ -z 'cruft' ] || { poetry run pytest --doctest-modules --verbose cruft }", help = "doctest's" }
 deps = { shell = "poetry install --with local-dev,test,docs", help = "Install project dependencies" }
 prepare = { sequence = ["locks", "deps", "formats", "tests", "gcl", "docs-make", "add", "hooks"], help = "Do things to prepare for release" }
 docs-make = { shell = "make docs || true" }
@@ -293,10 +296,10 @@ pule = { sequence = ["pu", "locks", "exports"], help = "Poetry update and export
 exports = { sequence = ["export", "export-dev"], help = "Do things to export" }
 formats = { sequence = ["isort", "black"], help = "Run checks" }
 locks = { sequence = ["set-lock", "check-lock"], help = "Manage poetry.lock" }
-ruff = { shell = "[ -z 'crufttests' ] || { poe formats; ruff check cruft tests; }", help = "Ruff linter" }
-ruff-noqa = { shell = "[ -z 'crufttests' ] || { ruff check --select RUF --fix cruft tests; }", help = "Ruff linter fix noqa" }
+ruff =       { shell = "[ -z 'crufttests' ] || { poe formats; ruff check         cruft tests; }", help = "Ruff linter" }
+ruff-noqa  = { shell = "[ -z 'crufttests' ] || { ruff check --select RUF --fix   cruft tests; }", help = "Ruff linter fix noqa" }
 ruff-watch = { shell = "[ -z 'crufttests' ] || { poe formats; ruff check --watch cruft tests; }", help = "Ruff linter in watch mode" }
-ruff-fix = { shell = "[ -z 'crufttests' ] || { ruff check --fix-only cruft tests; }", help = "Ruff linter fixes" }
+ruff-fix =   { shell = "[ -z 'crufttests' ] || { ruff check --fix-only           cruft tests; }", help = "Ruff linter fixes" }
 tflint = { shell = "env bash bin/run-tflint.sh", help = "Terraform linter" }
 tffmt = { shell = "terraform fmt -list=true -recursive -write=true", help = "Terraform formatting" }
 cruft = { shell = "git add -A ; poe cruft-checkout :latest:; git status ", help = "Update cruft to latest" }
@@ -382,7 +385,6 @@ include_reference_documentation = true
 extra_markdown_extensions = ["admonition", "codehilite", "extra"]
 
 [tool.portray.pdocs]
-# TO_DO: [2023-01-25 Christo]: excluded_modules = ["cli.console.vendor",]
 
 [tool.portray.mkdocs]
 site_name = "Cookiecutter"

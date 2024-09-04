@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+
+#set -x
+set +o errexit
+[ -z "$GITHUB_ACTION" ] || set -o nounset
+
+GITHUB_REF_NAME=${GITHUB_REF_NAME:-$(git branch --show-current)}
+GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-SandsB2B/$(basename $PWD)}
+GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-$PWD}
+export GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-$PWD}
+ASSETS_PATHS=${ASSETS_PATHS:-"build"}
+
+function xtrace_debugging_on() {
+    reset_stdout
+    echo "$1"
+    export _xtrace=$(shopt -o xtrace >/dev/null; echo $?)
+    set -x
+    export xtrace=0
+    export CI_VERBOSE=1
+}
+
+function xtrace_debugging_off() {
+    export CI_VERBOSE=''
+    export xtrace=${_xtrace:-1}
+    test 0 -ne $xtrace && set +x
+    export xtrace=1
+    unset _xtrace
+    if test ! -z "$1" ; then
+        redirect_stdout $1
+    fi
+}
+
+export xtrace=$(shopt -o xtrace > /dev/null; echo $?) || true
+export errexit=$(shopt -o errexit > /dev/null; echo $?) || true
+
+
+function chdir() {
+    local dir=$1
+    test 0 -ne $xtrace && set +x
+    cd $dir
+    test 0 -eq $xtrace && set -x
+}
+
+function build_artifacts() {
+    if [ ! -z "$ASSETS_PATHS" ] ; then
+        chdir $GITHUB_WORKSPACE
+        mkdir -p site 2>/dev/null || true
+
+        echo "=================================================="
+        echo "+ Process assets: $ASSETS_PATHS"
+        ERRORS=""
+        echo ASSETS_PATHS=$ASSETS_PATHS
+        ASSETS_PATHS=$(for mp in $ASSETS_PATHS ; do echo $mp ; done | sort | uniq)
+        echo ASSETS_PATHS=$ASSETS_PATHS
+        for ASSET_PATH in $ASSETS_PATHS ; do
+            cd $GITHUB_WORKSPACE
+            if [ -d "$ASSET_PATH" ] ; then
+                echo "++++++++++++++++++++++++++++++++++++++++++++++++++"
+                echo "++ $ASSET_PATH"
+                echo "++++++++++++++++++++++++++++++++++++++++++++++++++"
+								ASSET_PACKAGE_NAME=${ASSET_PACKAGE_NAME:-$(echo $ASSET_PATH | sed 's/\//-/')}
+                ASSET_NAME=${ASSET_NAME:-$(basename $(dirname $ASSET_PATH))}
+								[ $ASSET_NAME != "/" -a $ASSET_NAME != "."  ] || ASSET_NAME=$ASSET_PACKAGE_NAME
+                ASSET_PAYLOAD=${ASSET_PAYLOAD:-$(basename $ASSET_PATH)}
+                echo "++ ASSET_NAME: $ASSET_NAME"
+
+                echo "++ Building $ASSET_NAME from $GITHUB_WORKSPACE/$ASSET_PATH"
+                ls -l $ASSET_PATH/
+                RC=$?
+                [ $RC -eq 0 ] || {
+                    echo "ERROR: asset missing with RC=$RC";
+                    ERRORS="$ERRORS $ASSET_PATH";
+                    continue
+                }
+
+                description=$(tomlq .tool.poetry.description $GITHUB_WORKSPACE/pyproject.toml)
+                echo "++ description: '$description' ++"
+
+                # Copy the actual asset files
+                rm -fr site/$ASSET_NAME
+                rm -fr site/$ASSET_PATH
+                mkdir -p site/$ASSET_NAME/$ASSET_PATH/
+                cp -pvR $ASSET_PATH/* site/$ASSET_NAME/$ASSET_PATH/
+                RC=$?
+                [ $RC -eq 0 ] || {
+                    echo "ERROR: copy asset files failed with RC=$RC";
+                    ERRORS="$ERRORS $ASSET_PATH";
+                    continue
+                }
+                #[ ! -f VERSION ] || cp VERSION site/$ASSET_NAME/$ASSET_PATH/
+                README=site/$ASSET_NAME/README.md
+                echo "$(echo $description | sed 's/"//g') - Assets" >$README
+                echo "=============================" >>$README
+
+                echo "+++++++++++++++++++++++++++++"
+                echo $README
+                cat $README
+                echo "-----------------------------"
+
+                ASSET_TOML=site/$ASSET_NAME/metadata.toml
+                echo '' >$ASSET_TOML
+                echo -n 'poetry_include = "' >>$ASSET_TOML
+                sep=''
+                #read x
+                for f in $(find $ASSET_PATH -type f); do
+                  echo -n "$sep$(echo $f | sed "s/$ASSET_NAME\///")" >>$ASSET_TOML
+                  sep=';'
+                done >>$ASSET_TOML
+                echo -n "${sep}metadata.toml" >>$ASSET_TOML
+                echo '"' >>$ASSET_TOML
+                echo '[metadata]' >>$ASSET_TOML
+                echo "schema = \"\"" >>$ASSET_TOML
+                echo "schema_version = \"1.0\"" >>$ASSET_TOML
+                echo "name = \"$ASSET_PACKAGE_NAME\"" >>$ASSET_TOML
+                echo "path = \"$ASSET_NAME\"" >>$ASSET_TOML
+                echo "payload = \"$ASSET_PAYLOAD\"" >>$ASSET_TOML
+                echo "version = \"$(cat $GITHUB_WORKSPACE/VERSION)\"" >>$ASSET_TOML
+                echo "description = $description" >>$ASSET_TOML
+
+                echo "+++++++++++++++++++++++++++++"
+                echo $ASSET_TOML
+                cat $ASSET_TOML
+                echo "-----------------------------"
+
+                # This set's up Poetry to package the wheels
+                python bin/template-expander.py -s templates/asset:templates -c templates/asset \
+                  -t site/ --overwrite -d $ASSET_TOML
+                RC=$?
+                [ $RC -eq 0 ] || {
+                    echo "ERROR: asset Poetry template failed with RC=$RC";
+                    ERRORS="$ERRORS $ASSET_PATH";
+                    continue
+                }
+
+                cd site/$ASSET_NAME
+                ls -alR
+                poetry build
+                RC=$?
+                [ $RC -eq 0 ] || {
+                    echo "ERROR: poetry build failed with RC=$RC";
+                    ERRORS="$ERRORS $ASSET_PATH";
+                    continue
+                }
+
+                poetry publish -r assets
+                RC=$?
+                [ $RC -eq 0 ] || {
+                    echo "ERROR: poetry publish failed with RC=$RC";
+                    ERRORS="$ERRORS $ASSET_PATH";
+                }
+                echo "--------------------------------------------------"
+                echo "-- Done $ASSET_PATH"
+                echo "--------------------------------------------------"
+            else
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              echo "WARNING: $ASSET_PATH does not exist. Skipping ..."
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            fi
+            if [ ! -z "$ERRORS" ] ; then
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              echo "!!! ERROR: ${ERRORS} deployments failed"
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              exit 2
+            fi
+        done
+    else
+        echo "No config changes! Skipping assets ..."
+    fi
+    echo "                      Done!"
+    echo "=================================================="
+}

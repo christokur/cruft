@@ -1,7 +1,7 @@
 {
   "template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
-  "commit": "f45aa5832ba29b3d6b9140925ab5cbc8aab75ab7",
-  "checkout": "v0.22.1",
+  "commit": "ccc5d6080ec8366d5f2f45076fc4dd5e6b8080fc",
+  "checkout": "v0.23.0",
   "context": {
     "cookiecutter": {
       "authors": "Timothy Crosley <timothy.crosley@gmail.com>",
@@ -19,8 +19,8 @@
       "dynamic": "",
       "poetry_version": "~1.8.3",
       "poetry_source_name": "codeartifact",
+      "poetry_source_priority": "primary",
       "poetry_source_url": "https://artifacts-433714148419.d.codeartifact.us-east-2.amazonaws.com/pypi/pypi/simple/",
-      "testpaths": "tests",
       "aws_region_tools": "us-east-2",
       "aws_account_tools": "433714148419",
       "prompt_toolkit_version": "~3.0.47",
@@ -38,6 +38,8 @@
       "site_description": "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter.",
       "site_url": "",
       "mkdocs_site_dir": "site",
+      "testpaths": "tests",
+      "test_exclude": "",
       "theme_light_primary": "green",
       "theme_light_accent": "brown",
       "theme_dark_primary": "green",
@@ -65,6 +67,7 @@
       "poetry_exclude": ".bumpversion.cfg",
       "poetry_url_documentation": "",
       "poetry_url_homepage": "https://github.com/cookiecutter/cookiecutter",
+      "portray_pdocs_excluded_modules": "",
       "portray_pdocs_modules": "",
       "docs_domain_name": "docs.infra-area2.com",
       "docs_hosted_zone_id": "Z0827901K2W3PZV3XWL1",
@@ -81,16 +84,20 @@
       "ruff_extend_exclude": "",
       "ruff_ignore": "",
       "_extensions": [
-        "toolbag.utils.template_expander.extensions.ExpandCookiecutterTemplateExtension",
         "toolbag.utils.template_expander.extensions.PythonExtension",
-        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension"
+        "toolbag.utils.template_expander.extensions.python_extension.PythonExtension",
+        "toolbag.utils.template_expander.extensions.ExpandCookiecutterTemplateExtension"
       ],
       "_notes": {
         "lists": "Lists have a special meaning for Cookiecutter so we are forced to wrap them in a map or express as a CSV string and split in the template.",
         "dicts": "Dicts are updated by cruft and as a side-effect sort at the end of the cookiecutter.json file."
       },
       "build_system": {},
-      "poetry_source_urls": {},
+      "poetry_source_urls": {
+        "pypi": {
+          "priority": "supplemental"
+        }
+      },
       "tox_legacy_ini": {},
       "poetry_dependencies": {
         "cookiecutter": "~2.2.0post6",
@@ -149,6 +156,10 @@
         "pytest-datadir": "~1.5.0",
         "pytest-stub": "~1.1.0"
       },
+      "poetry_package_mode": {
+        "enabled": "true"
+      },
+      "poetry_settings": {},
       "poetry_extras": {},
       "poetry_packages": {
         "1": {
@@ -164,7 +175,18 @@
       "portray_mkdocs_theme": {},
       "pytest_ini_options": {},
       "tools": {},
-      "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git"
+      "_template": "git@github.com:SandsB2B/cookiecutter-project-docs.git",
+      "ruff_extend_exclude_list": [],
+      "test_exclude_list": [],
+      "src_path_prefix_list": [
+        "cruft"
+      ],
+      "testpaths_list": [
+        "tests"
+      ],
+      "tests_list": [
+        "tests"
+      ]
     }
   },
   "directory": ""
