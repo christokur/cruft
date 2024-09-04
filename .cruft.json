@@ -28,7 +28,7 @@
       "python_major_minor_min": "3.10",
       "python_major_minor_max": "3.13",
       "python_major_minor_docs": "3.10",
-      "python_ci_versions": "3.10,3.11,3.12",
+      "python_ci_versions": "3.11,3.12",
       "python_ci_build_version": "3.11",
       "python_requires": ">=3.11.8",
       "python_toolbag_version": ">=0.23.22",

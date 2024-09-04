@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         # Put the version we consider mainline and publish with last
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     env:
