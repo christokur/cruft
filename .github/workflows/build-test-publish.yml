@@ -50,7 +50,7 @@ jobs:
       shell: bash
 
     - name: configure-aws-credentials
-      uses: SandsB2B/configure-aws-credentials-action@v0.1.0
+      uses: SandsB2B/configure-aws-credentials-action@main
       with:
         role_name: "github-codeartifact-readwrite"
         account_id: "433714148419"
