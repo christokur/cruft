@@ -101,7 +101,7 @@ jobs:
 
         export DEBUG=yes
         export VERBOSE=yes
-        python3 $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
+        poetry run $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
       shell: bash
 
     - name: Test coverage
