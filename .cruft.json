@@ -31,7 +31,7 @@
       "python_ci_versions": "3.11,3.12",
       "python_ci_build_version": "3.11",
       "python_requires": ">=3.11.8",
-      "python_toolbag_version": ">=0.23.22",
+      "python_toolbag_version": ">=0.25.7",
       "cruft_skip": ".bumpversion.cfg,README.md,.gitignore,tests,.github/workflows/build-test-publish.yml,poetry.toml,.gitignore",
       "src_path_prefix": "cruft",
       "site_name": "Cookiecutter",
@@ -146,7 +146,7 @@
         "pre-commit": "{ version = '~2.21.0' }",
         "prompt-toolkit": "~3.0.38",
         "pyproject-fmt": "{ version = '~0.13.0' }",
-        "python-toolbag": ">=0.23.22",
+        "python-toolbag": ">=0.25.7",
         "ruff": ">=0.1.1",
         "semver": ">=3.0.0,<4.0.0"
       },
