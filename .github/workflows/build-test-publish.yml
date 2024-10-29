@@ -89,19 +89,13 @@ jobs:
         #poetry env use ${{ matrix.python-version }}
         poetry check --lock
         poetry config --list
+
         #poetry install --with dev --no-ansi --no-interaction
         poetry install --with main,dev,test --no-ansi --no-interaction --verbose
-        pip list
-        poetry build
-      shell: bash
+        poetry run pip list
 
-    - name: Component and Versions
-      run: |
-        #export LOG_LEVEL=DEBUG
-
-        export DEBUG=yes
-        export VERBOSE=yes
-        poetry run $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
+        python -m pip install build
+        python -m build --sdist --wheel --outdir dist/ .
       shell: bash
 
     - name: Test coverage
@@ -115,12 +109,16 @@ jobs:
       run: |
         pip install wheel twine
         cat ~/.pypirc
-        #export TWINE_USERNAME=aws
-        #export TWINE_PASSWORD=`aws codeartifact get-authorization-token --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --query authorizationToken --output text --profile=cloud-services-prod`
-        #export TWINE_REPOSITORY_URL=`aws codeartifact get-repository-endpoint --domain artifacts --domain-owner $AWS_ACCOUNT_TOOLS --repository pypi --format pypi --query repositoryEndpoint --output text --profile=cloud-services-prod`
-        #set | grep TWINE
         for whl in dist/*.whl; do
-          #twine upload --repository-url $TWINE_REPOSITORY_URL -u $TWINE_USERNAME -p $TWINE_PASSWORD --verbose $whl
           twine upload --verbose --repository codeartifact $whl
         done
+      shell: bash
+
+    - name: Component and Versions
+      run: |
+        #export LOG_LEVEL=DEBUG
+
+        export DEBUG=yes
+        export VERBOSE=yes
+        poetry run $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
       shell: bash

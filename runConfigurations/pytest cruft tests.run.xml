@@ -1,0 +1,35 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="pytest cruft tests" type="tests" factoryName="py.test" folderName="cruft">
+    <module name="tools" />
+    <option name="ENV_FILES" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="IGNORE_WHILE_PYTEST" value="yes" />
+      <env name="PYDEVD_USE_CYTHON" value="NO" />
+      <env name="PYDEVD_USE_FRAME_EVAL" value="NO" />
+    </envs>
+    <option name="SDK_HOME" value="$USER_HOME$/.pyenv/versions/python-toolbag/bin/python" />
+    <option name="SDK_NAME" value="Python 3.11 (cruft)" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../tools/cruft" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="false" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <EXTENSION ID="com.fapiko.jetbrains.plugins.better_direnv.runconfigs.PycharmRunConfigurationExtension">
+      <option name="DIRENV_ENABLED" value="false" />
+      <option name="DIRENV_TRUSTED" value="false" />
+    </EXTENSION>
+    <EXTENSION ID="software.aws.toolkits.jetbrains.core.execution.PythonAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </EXTENSION>
+    <option name="_new_keywords" value="&quot;&quot;" />
+    <option name="_new_parameters" value="&quot;&quot;" />
+    <option name="_new_additionalArguments" value="&quot;tests&quot;" />
+    <option name="_new_target" value="&quot;&quot;" />
+    <option name="_new_targetType" value="&quot;CUSTOM&quot;" />
+    <method v="2" />
+  </configuration>
+</component>
