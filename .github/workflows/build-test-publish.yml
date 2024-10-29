@@ -92,6 +92,7 @@ jobs:
         #poetry install --with dev --no-ansi --no-interaction
         poetry install --with main,dev,test --no-ansi --no-interaction --verbose
         pip list
+        poetry build
       shell: bash
 
     - name: Component and Versions
