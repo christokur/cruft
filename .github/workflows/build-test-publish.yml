@@ -99,6 +99,7 @@ jobs:
 
         export DEBUG=yes
         export VERBOSE=yes
+        export PYTHONPATH=$GITHUB_WORKSPACE/src:$PYTHONPATH
         python3 $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
       shell: bash
 
