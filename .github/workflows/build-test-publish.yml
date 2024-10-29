@@ -89,7 +89,8 @@ jobs:
         #poetry env use ${{ matrix.python-version }}
         poetry check --lock
         poetry config --list
-        poetry install --with dev --no-ansi --no-interaction
+        #poetry install --with dev --no-ansi --no-interaction
+        poetry install --with main,dev,test --no-ansi --no-interaction --verbose
         pip list
       shell: bash
 
@@ -99,7 +100,6 @@ jobs:
 
         export DEBUG=yes
         export VERBOSE=yes
-        export PYTHONPATH=$GITHUB_WORKSPACE/src:$PYTHONPATH
         python3 $GITHUB_WORKSPACE/scripts/jira-component-and-version.py
       shell: bash
 
