@@ -28,7 +28,6 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
     "Programming Language :: Python",
     "Topic :: Software Development",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
@@ -195,7 +194,7 @@ show-fixes = true
 # show-source = false
 # Allow imports relative to the "src" and "test" directories.
 src = ["cruft", "tests"]
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 # Allow unused variables when underscore-prefixed.
