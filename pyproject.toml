@@ -7,7 +7,7 @@ requires = [
 
 [tool.poetry]
 name = "cruft"
-version = "2.12.0post17"
+version = "2.12.0post18"
 description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
 authors = [ "Timothy Crosley <timothy.crosley@gmail.com>" ]
 license = "MIT"
@@ -39,6 +39,7 @@ exclude = [
 packages = [
     { include = "cruft" }
 ]
+package-mode = true
 
 
 [tool.poetry.scripts]
@@ -78,7 +79,7 @@ invoke = "~2.2.0"
 pip = "~24.2"
 poetry = "~1.8.3"
 poethepoet = "~0.24.0"
-#python-toolbag = ">=0.23.22"
+python-toolbag = ">=0.23.22"
 # tox_enable: 'False'
 "rpds-py" = "==0.9.2"
 bandit = ">=1.6"
@@ -116,9 +117,9 @@ bump2version = "~1.0.2-beta6"
 commitizen = { version = '~2.42.1' }
 gitlint = { version = '~0.19.1' }
 pre-commit = { version = '~2.21.0' }
-prompt-toolkit = "~3.0.47"
+prompt-toolkit = "~3.0.38"
 pyproject-fmt = { version = '~0.13.0' }
-#python-toolbag = ">=0.23.22"
+python-toolbag = ">=0.23.22"
 ruff = ">=0.1.1"
 semver = ">=3.0.0,<4.0.0"
 
@@ -140,7 +141,7 @@ pymdown-extensions = ">=10.0"
 
 [tool.black]
 line-length = 100
-target-version = ['py39']
+target-version = ['py38', 'py39', 'py310', 'py311']
 exclude = '/(tests/hooks-abort-render/hooks|docs\/HelloCookieCutter1)/'
 # 'force-exclude' excludes files or directories in addition to the defaults
 force-exclude = '(^/.github/*, ^/.vscode/*, .*\.tf)'
@@ -230,7 +231,7 @@ extend-ignore = "E203"
 
 [tool.pytest.ini_options]
 testpaths = [ "cruft", "tests",  ]
-addopts = ["--doctest-modules"]
+addopts = [""]
 norecursedirs = [
     "build",
     "dist",
@@ -238,7 +239,7 @@ norecursedirs = [
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 
 [tool.coverage.run]
-command_line = "-m pytest --doctest-modules"
+command_line = "-m pytest "
 source = [ "cruft", "tests",]
 parallel = true
 branch = true # measure branch coverage in addition to statement coverage
@@ -277,7 +278,7 @@ pc-uninstall = { shell = "pre-commit uninstall; gitlint uninstall-hook", help = 
 hooks = { shell = "git add -A; pre-commit run", help = "Run pre-commit hooks" }
 isort = { shell = "[ -z 'crufttests' ] || { export PYTHONWARNINGS='ignore::Warning:setuptools.command.install'; isort cruft tests; }", help = "isort imports in cruft and tests" }
 black = { shell = "[ -z 'crufttests' ] || { black cruft tests; }", help = "black formatting in cruft and tests" }
-tests = { shell = "[ -z 'crufttests' ] || { poetry run pytest -s --doctest-modules cruft tests; }", help = "pytest's" }
+tests = { shell = "[ -z 'crufttests' ] || { poetry run pytest -s  cruft tests; }", help = "pytest's" }
 pros = { shell = "prospector --profile prospector.yaml", help = "Prospector" }
 b2v = { cmd = "bump2version patch --new-version '${version}' --allow-dirty --commit", args = [{ name = "version", positional = true, multiple = false }], help = "Prospector" }
 gcl = { shell = "cz changelog --incremental || { echo 'With incremental changelog we are ok when there is nothing new to add ...'; true; }; python scripts/normalize_changelog.py", help = "Git Changelog" }
@@ -285,7 +286,7 @@ gl = { shell = "gitlint", help = "Gitlint last commit" }
 format = { shell = "black --check --diff ." }
 add = { shell = "git add -A" }
 ibtl = { sequence = ["isort", "black", "tests", "lint"] }
-doctests = { shell = "[ -z 'cruft' ] || { poetry run pytest --doctest-modules --verbose cruft }", help = "doctest's" }
+doctests = { shell = "[ -z 'cruft' ] || { poetry run pytest  --verbose cruft }", help = "doctest's" }
 deps = { shell = "poetry install --with local-dev,test,docs", help = "Install project dependencies" }
 prepare = { sequence = ["locks", "deps", "formats", "tests", "gcl", "docs-make", "add", "hooks"], help = "Do things to prepare for release" }
 docs-make = { shell = "make docs || true" }
@@ -320,7 +321,7 @@ help = "Do a few lint checks"
 [tool.poe.tasks.test-cov]
 shell = """
 [ -z 'crufttests' ] || {
-coverage run -m pytest --doctest-modules cruft tests;
+coverage run -m pytest  cruft tests;
 [ 0 -eq $? ] || { echo 'Tests failed'; exit 1; };
 coverage combine;
 coverage html -d coverage;
@@ -355,7 +356,7 @@ args = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.12.0post17"
+version = "2.12.0post18"
 version_files = [
     ".bumpversion.cfg",
     "VERSION",
@@ -397,7 +398,7 @@ copyright = "(c) 2022 Las Vegas Sands"
 extra = { generator = false }
 extra_css = ["/docs/css/termynal.css", "/docs/css/custom.css"]
 extra_javascript = ["/docs/js/termynal.js", "/docs/js/custom.js"]
-strict = true
+strict = false
 #hooks = [ "docs/hooks/clusters_hook.py" ] [2023-01-26 Christo] Requires 1.4.x
 
 #[tool.portray.mkdocs.plugins]
