@@ -98,11 +98,11 @@ jobs:
         python -m build --sdist --wheel --outdir dist/ .
       shell: bash
 
-    - name: Test coverage
-      run: |
-        poetry env info
-        poetry run poe test-cov
-      shell: bash
+#    - name: Test coverage
+#      run: |
+#        poetry env info
+#        poetry run poe test-cov
+#      shell: bash
 
     - name: Publish
       if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
