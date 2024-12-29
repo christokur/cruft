@@ -1,6 +1,6 @@
 [project]
 name = "cruft"
-version = "0.0.0"
+version = "2.16.0"
 description = "Allows you to maintain all the necessary cruft for packaging and building projects separate from the code you intentionally write. Built on-top of CookieCutter."
 authors = [
     {name = "Timothy Crosley", email = "timothy.crosley@gmail.com"},
