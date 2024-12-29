@@ -39,9 +39,12 @@ def cookiecutter_template(
     commit = checkout or repo.remotes.origin.refs["HEAD"]
 
     repo.head.reset(commit=commit, working_tree=True)
+    repo.submodule_update(recursive=True, force_reset=True)
 
     assert repo.working_dir is not None  # nosec B101 (allow assert for type checking)
-    context = _generate_output(cruft_state, Path(repo.working_dir), cookiecutter_input, output_dir)
+    context = _generate_output(
+        cruft_state, commit, Path(repo.working_dir), cookiecutter_input, output_dir
+    )
 
     # Get all paths that we are supposed to skip before generating the diff and applying updates
     skip_paths = _get_skip_paths(cruft_state, pyproject_file)
@@ -62,12 +65,17 @@ def cookiecutter_template(
 
 
 def _generate_output(
-    cruft_state: CruftState, project_dir: Path, cookiecutter_input: bool, output_dir: Path
+    cruft_state: CruftState,
+    commit: str,
+    project_dir: Path,
+    cookiecutter_input: bool,
+    output_dir: Path,
 ) -> CookiecutterContext:
     inner_dir = project_dir / (cruft_state.get("directory") or "")
 
     new_context = generate_cookiecutter_context(
         cruft_state["template"],
+        commit,
         inner_dir,
         extra_context=cruft_state["context"]["cookiecutter"],
         no_input=not cookiecutter_input,
@@ -98,7 +106,7 @@ def _generate_output(
 ##############################
 
 
-def _get_skip_paths(cruft_state: CruftState, pyproject_file: Path) -> Set[Path]:
+def _get_skip_paths(cruft_state: CruftState, pyproject_file: Path) -> Set[Union[str, Path]]:
     skip_cruft = cruft_state.get("skip", [])
     if tomllib and pyproject_file.is_file():
         pyproject_cruft = tomllib.loads(pyproject_file.read_text()).get("tool", {}).get("cruft", {})
@@ -106,9 +114,10 @@ def _get_skip_paths(cruft_state: CruftState, pyproject_file: Path) -> Set[Path]:
     elif pyproject_file.is_file():
         warn(
             "pyproject.toml is present in repo, but python version is < 3.11 and "
-            "`toml` package is not installed. Cruft configuration may be ignored."
+            "`toml` package is not installed. Cruft configuration may be ignored.",
+            stacklevel=2,
         )
-    return set(map(Path, skip_cruft))
+    return set(map(lambda p: p if "*" in p else Path(p), skip_cruft))
 
 
 def _get_deleted_files(template_dir: Path, project_dir: Path):
@@ -155,7 +164,7 @@ def _remove_paths(root: Path, paths_to_remove: Set[Union[Path, str]]):
         elif isinstance(path_to_remove, str):  # assumes the string is a glob-pattern
             abs_paths_to_remove += list(root.glob(path_to_remove))
         else:
-            warn(f"{path_to_remove} is not a Path object or a string glob-pattern")
+            warn(f"{path_to_remove} is not a Path object or a string glob-pattern", stacklevel=2)
 
     for path in abs_paths_to_remove:
         _remove_single_path(path)

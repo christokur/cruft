@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, run  # nosec
-from typing import Iterable, Optional, Set
 from typing import Any, Dict, Optional, Set
 
 import click
@@ -9,7 +8,6 @@ import typer
 
 from . import utils
 from .utils import example
-from .utils.diff import _transfer_project_paths, _trim_ignored_paths
 from .utils.iohelper import AltTemporaryDirectory
 
 
@@ -17,6 +15,7 @@ from .utils.iohelper import AltTemporaryDirectory
 @example()
 def update(
     project_dir: Path = Path("."),
+    template_path: Optional[Path] = None,
     cookiecutter_input: bool = False,
     refresh_private_variables: bool = False,
     skip_apply_ask: bool = True,
@@ -24,13 +23,6 @@ def update(
     checkout: Optional[str] = None,
     strict: bool = True,
     allow_untracked_files: bool = False,
-    allow_modified_files: bool = False,
-    include_paths: Optional[Iterable[Path]] = None,
-    force: bool = False,
-    respect_gitignore: bool = False,
-    interactive: bool = True,
-    override: bool = False,
-    dry_run: bool = False,
     extra_context: Optional[Dict[str, Any]] = None,
     extra_context_file: Optional[Path] = None,
 ) -> bool:
@@ -59,7 +51,7 @@ def update(
 
     # If the project dir is a git repository, we ensure
     # that the user has a clean working directory before proceeding.
-    if not _is_project_repo_clean(project_dir, allow_untracked_files, allow_modified_files):
+    if not _is_project_repo_clean(project_dir, allow_untracked_files):
         typer.secho(
             "Cruft cannot apply updates on an unclean git project."
             " Please make sure your git working tree is clean before proceeding.",
@@ -68,15 +60,16 @@ def update(
         return False
 
     cruft_state = json.loads(cruft_file.read_text())
-    if checkout:
-        cruft_state["checkout"] = checkout
 
     directory = cruft_state.get("directory", "")
     if directory:
         directory = str(Path("repo") / directory)
     else:
         directory = "repo"
-
+    if template_path is None:
+        template_git_str = cruft_state["template"]
+    else:
+        template_git_str = utils.cookiecutter.resolve_template_url(str(template_path))
     with AltTemporaryDirectory(directory) as tmpdir_:
         # Initial setup
         tmpdir = Path(tmpdir_)
@@ -84,14 +77,14 @@ def update(
         current_template_dir = tmpdir / "current_template"
         new_template_dir = tmpdir / "new_template"
         deleted_paths: Set[Path] = set()
+
         # Clone the template
-        with utils.cookiecutter.get_cookiecutter_repo(cruft_state, repo_dir) as repo:
-            checkout = cruft_state["checkout"]
+        with utils.cookiecutter.get_cookiecutter_repo(template_git_str, repo_dir, checkout) as repo:
             last_commit = repo.head.object.hexsha
 
             # Bail early if the repo is already up to date and no inputs are asked
             if not (
-                extra_context or cookiecutter_input or refresh_private_variables or force
+                extra_context or cookiecutter_input or refresh_private_variables
             ) and utils.cruft.is_project_updated(repo, cruft_state["commit"], last_commit, strict):
                 typer.secho(
                     "Nothing to do, project's cruft is already up to date!", fg=typer.colors.GREEN
@@ -112,14 +105,6 @@ def update(
                 deleted_paths=deleted_paths,
                 update_deleted_paths=True,
             )
-
-            _trim_ignored_paths(
-                target_dir=current_template_dir,
-                include_paths=include_paths,
-                respect_gitignore=respect_gitignore,
-                project_dir=project_dir,
-            )
-
             # Remove private variables from cruft_state to refresh their values
             # from the cookiecutter template config
             if refresh_private_variables:
@@ -141,14 +126,6 @@ def update(
                 deleted_paths=deleted_paths,
             )
 
-        if override:
-            _transfer_project_paths(
-                include_paths=include_paths,
-                local_template_dir=current_template_dir,
-                project_dir=project_dir,
-                remote_template_dir=new_template_dir,
-            )
-
         # Given the two versions of the cookiecutter outputs based
         # on the current project's context we calculate the diff and
         # apply the updates to the current project.
@@ -159,10 +136,6 @@ def update(
             skip_update,
             skip_apply_ask,
             allow_untracked_files,
-            allow_modified_files,
-            force,
-            interactive=interactive,
-            dry_run=dry_run,
         ):
             # Update the cruft state and dump the new state
             # to the cruft file
@@ -179,7 +152,7 @@ def update(
 
 def _clean_cookiecutter_private_variables(cruft_state: dict):
     for key in list(cruft_state["context"]["cookiecutter"].keys()):
-        if key.startswith("_"):
+        if key not in ["_commit", "_template"] and key.startswith("_"):
             del cruft_state["context"]["cookiecutter"][key]
 
 
@@ -204,17 +177,7 @@ def _has_untracked_file(status_line: str):
     return status_line.strip().startswith("??")
 
 
-def _has_modified_file(status_line: str):
-    return (
-        status_line.strip().startswith("M")
-        or status_line.strip().startswith("A")
-        or status_line.strip().startswith("D")
-    )
-
-
-def _is_project_repo_clean(
-    directory: Path, allow_untracked_files: bool, allow_modified_files: bool = False
-):
+def _is_project_repo_clean(directory: Path, allow_untracked_files: bool):
     if not _is_git_repo(directory):
         return True
     git_status = run(["git", "status", "--porcelain"], stdout=PIPE, stderr=DEVNULL, cwd=directory)
@@ -223,8 +186,6 @@ def _is_project_repo_clean(
     status_lines = [line for line in status_lines if line]
     if allow_untracked_files:
         status_lines = [line for line in status_lines if not _has_untracked_file(line)]
-    if allow_modified_files:
-        status_lines = [line for line in status_lines if not _has_modified_file(line)]
     if status_lines:
         return False
     return True
@@ -257,12 +218,7 @@ def _apply_patch_with_rejections(diff: str, expanded_dir_path: Path):
         )
 
 
-def _apply_three_way_patch(
-    diff: str,
-    expanded_dir_path: Path,
-    allow_untracked_files: bool,
-    allow_modified_files: bool = False,
-):
+def _apply_three_way_patch(diff: str, expanded_dir_path: Path, allow_untracked_files: bool):
     offset = _get_offset(expanded_dir_path)
 
     git_apply = ["git", "apply", "-3"]
@@ -280,7 +236,7 @@ def _apply_three_way_patch(
         )
     except CalledProcessError as error:
         typer.secho(error.stderr.decode(), err=True)
-        if _is_project_repo_clean(expanded_dir_path, allow_untracked_files, allow_modified_files):
+        if _is_project_repo_clean(expanded_dir_path, allow_untracked_files):
             typer.secho(
                 "Failed to apply the update. Retrying again with a different update strategy.",
                 fg=typer.colors.YELLOW,
@@ -309,12 +265,7 @@ def _get_offset(expanded_dir_path: Path):
             raise error
 
 
-def _apply_patch(
-    diff: str,
-    expanded_dir_path: Path,
-    allow_untracked_files: bool,
-    allow_modified_files: bool,
-):
+def _apply_patch(diff: str, expanded_dir_path: Path, allow_untracked_files: bool):
     # Git 3 way merge is the our best bet
     # at applying patches. But it only works
     # with git repos. If the repo is not a git dir
@@ -322,7 +273,7 @@ def _apply_patch(
     # diffs cleanly where applicable otherwise creates
     # *.rej files where there are conflicts
     if _is_git_repo(expanded_dir_path):
-        _apply_three_way_patch(diff, expanded_dir_path, allow_untracked_files, allow_modified_files)
+        _apply_three_way_patch(diff, expanded_dir_path, allow_untracked_files)
     else:
         _apply_patch_with_rejections(diff, expanded_dir_path)
 
@@ -334,46 +285,34 @@ def _apply_project_updates(
     skip_update: bool,
     skip_apply_ask: bool,
     allow_untracked_files: bool,
-    allow_modified_files: bool = False,
-    force: bool = False,
-    interactive: bool = True,
-    dry_run: bool = False,
 ) -> bool:
     diff = utils.diff.get_diff(old_main_directory, new_main_directory)
 
-    if not skip_apply_ask and not skip_update and not force:
+    if not skip_apply_ask and not skip_update:
         input_str: str = "v"
         while input_str == "v":
-            if interactive and not dry_run:
-                typer.echo(
-                    'Respond with "s" to intentionally skip the update while marking '
-                    "your project as up-to-date or "
-                    'respond with "v" to view the changes that will be applied.'
-                )
-                input_str = typer.prompt(
-                    "Apply diff and update?",
-                    type=click.Choice(("y", "n", "s", "v")),
-                    show_choices=True,
-                    default="y",
-                )
+            typer.echo(
+                'Respond with "s" to intentionally skip the update while marking '
+                "your project as up-to-date or "
+                'respond with "v" to view the changes that will be applied.'
+            )
+            input_str = typer.prompt(
+                "Apply diff and update?",
+                type=click.Choice(("y", "n", "s", "v")),
+                show_choices=True,
+                default="y",
+            )
             if input_str == "v":
                 if diff.strip():
                     utils.diff.display_diff(old_main_directory, new_main_directory)
                 else:
                     click.secho("There are no changes.", fg=typer.colors.YELLOW)
-            if dry_run:
-                input_str = "d"
-            if not interactive:
-                input_str = "y"
         if input_str == "n":
             typer.echo("User cancelled Cookiecutter template update.")
-            return False
-        elif input_str == "d":
-            typer.echo("Dry run - skipping Cookiecutter template update.")
             return False
         elif input_str == "s":
             skip_update = True
 
     if not skip_update and diff.strip():
-        _apply_patch(diff, project_dir, allow_untracked_files, allow_modified_files)
+        _apply_patch(diff, project_dir, allow_untracked_files)
     return True
